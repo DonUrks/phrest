@@ -1,0 +1,12 @@
+#Todos
+- Action für Swagger Schema Validation
+- No swagger found?
+- Swagger error?
+- No Hateoas?
+- Hateoas error?
+- RequestBodyValidator Definition not found?
+- RequestParams Validator
+- HAL Links
+- ErrorCodes
+- UnitTests
+- ReadMe
