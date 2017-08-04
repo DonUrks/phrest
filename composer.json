@@ -3,8 +3,7 @@
   "description": "A REST API lib with swagger and hateoas support.",
   "autoload": {
     "psr-4": {
-      "Phrest\\": "src/Phrest/",
-      "PExample\\": "example/src/PExample/"
+      "Phrest\\": "src/Phrest/"
     }
   },
   "require": {
