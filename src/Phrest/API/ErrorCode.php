@@ -1,4 +1,5 @@
 <?php
+
 namespace Phrest\API;
 
 abstract class ErrorCode
@@ -17,7 +18,41 @@ abstract class ErrorCode
     const JSON_DECODE_ERROR_INF_OR_NAN = 9;
     const JSON_DECODE_ERROR_UNSUPPORTED_TYPE = 10;
 
-    const PATH_NOT_FOUND = 11;
+    const JSON_SCHEMA_ADDITIONAL_ITEMS = 11;
+    const JSON_SCHEMA_ADDITIONAL_PROP = 12;
+    const JSON_SCHEMA_ALL_OF = 13;
+    const JSON_SCHEMA_ANY_OF = 14;
+    const JSON_SCHEMA_DEPENDENCIES = 15;
+    const JSON_SCHEMA_DISALLOW = 16;
+    const JSON_SCHEMA_DIVISIBLE_BY = 17;
+    const JSON_SCHEMA_ENUM = 18;
+    const JSON_SCHEMA_EXCLUSIVE_MAXIMUM = 19;
+    const JSON_SCHEMA_EXCLUSIVE_MINIMUM = 20;
+    const JSON_SCHEMA_FORMAT = 21;
+    const JSON_SCHEMA_MAXIMUM = 22;
+    const JSON_SCHEMA_MAX_ITEMS = 23;
+    const JSON_SCHEMA_MAX_LENGTH = 24;
+    const JSON_SCHEMA_MAX_PROPERTIES = 25;
+    const JSON_SCHEMA_MINIMUM = 26;
+    const JSON_SCHEMA_MIN_ITEMS = 27;
+    const JSON_SCHEMA_MIN_LENGTH = 28;
+    const JSON_SCHEMA_MIN_PROPERTIES = 29;
+    const JSON_SCHEMA_MISSING_MAXIMUM = 30;
+    const JSON_SCHEMA_MISSING_MINIMUM = 31;
+    const JSON_SCHEMA_MULTIPLE_OF = 32;
+    const JSON_SCHEMA_NOT = 33;
+    const JSON_SCHEMA_ONE_OF = 34;
+    const JSON_SCHEMA_PATTERN = 35;
+    const JSON_SCHEMA_PREGEX = 36;
+    const JSON_SCHEMA_REQUIRED = 37;
+    const JSON_SCHEMA_REQUIRES = 38;
+    const JSON_SCHEMA_SCHEMA = 39;
+    const JSON_SCHEMA_TYPE = 40;
+    const JSON_SCHEMA_UNIQUE_ITEMS = 41;
+
+    const JSON_SCHEMA_ERROR = 42;
+    const PATH_NOT_FOUND = 43;
+
 
 
 }
