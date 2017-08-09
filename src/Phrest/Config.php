@@ -15,6 +15,7 @@ abstract class Config
     const DEPENDENCIES = 'phrest_dependencies';
 
     const LOGGER = 'phrest_logger';
+    const SWAGGER = 'phrest_swagger';
 
     const PRE_ROUTING_MIDDLEWARE = 'phrest_pre_routing_middleware';
     const PRE_DISPATCHING_MIDDLEWARE = 'phrest_pre_dispatching_middleware';
@@ -22,7 +23,6 @@ abstract class Config
 
     const ACTION_SWAGGER = 'phrest_action_swagger';
 
-    const SWAGGER = 'phrest_swagger';
     const HATEOAS_RESPONSE_GENERATOR = 'phrest_hateoas_response_generator';
-    const REQUEST_BODY_VALIDATOR = 'phrest_request_body_validator';
+    const REQUEST_SWAGGER_VALIDATOR = 'phrest_request_swagger_validator';
 }

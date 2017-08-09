@@ -33,7 +33,7 @@ class JsonRequestBody implements \Interop\Http\ServerMiddleware\MiddlewareInterf
                 new \Phrest\API\Error(
                     \Phrest\API\ErrorCode::JSON_DECODE_ERROR,
                     'json decode error',
-                    new \Phrest\API\ErrorEntry($errorEntryCode, 'body', json_last_error_msg(), '')
+                    new \Phrest\API\ErrorEntry($errorEntryCode, '{body}', json_last_error_msg(), '')
                 )
             );
         }

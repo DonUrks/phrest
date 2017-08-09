@@ -10,3 +10,6 @@
 - ErrorCodes
 - UnitTests
 - ReadMe
+- HATEOAS absolute url
+- solve todos in code
+- RequestSwaggerValidator Middleware and/or AbstractAction
