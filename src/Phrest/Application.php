@@ -42,14 +42,6 @@ class Application
             ]);
         }
 
-        // Swagger
-        if(!$cache->hasItem(self::CACHE_SWAGGER)) {
-            $swagger = \Swagger\scan($swaggerScanDirectory);
-            $cache->setItem(self::CACHE_SWAGGER, $swagger);
-        } else {
-            $swagger = $cache->getItem(self::CACHE_SWAGGER);
-        }
-
         // HATEOAS
         \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
         $hateoasBuilder = \Hateoas\HateoasBuilder::create();
@@ -81,17 +73,27 @@ class Application
                             return $logger;
                         },
 
-                        \Phrest\Config::ACTION_SWAGGER => function() use($swagger) {
-                            return new \Phrest\API\Action\Swagger($swagger);
+                        \Phrest\Config::SWAGGER => function () use($cache, $swaggerScanDirectory) {
+                            if(!$cache->hasItem(self::CACHE_SWAGGER)) {
+                                $swagger = \Swagger\scan($swaggerScanDirectory);
+                                $cache->setItem(self::CACHE_SWAGGER, $swagger);
+                            } else {
+                                $swagger = $cache->getItem(self::CACHE_SWAGGER);
+                            }
+                            return $swagger;
+                        },
+
+                        \Phrest\Config::ACTION_SWAGGER => function(\Interop\Container\ContainerInterface $container) {
+                            return new \Phrest\API\Action\Swagger($container->get(\Phrest\Config::SWAGGER));
                         },
 
                         \Phrest\Config::HATEOAS_RESPONSE_GENERATOR => function() use($hateoas) {
                             return new \Phrest\API\HateoasResponseGenerator($hateoas);
                         },
 
-                        \Phrest\Config::REQUEST_BODY_VALIDATOR => function() use($swagger) {
+                        \Phrest\Config::REQUEST_BODY_VALIDATOR => function(\Interop\Container\ContainerInterface $container) {
                             $schemaStorage = new \JsonSchema\SchemaStorage();
-                            $schemaStorage->addSchema('file://swagger', json_decode($swagger));
+                            $schemaStorage->addSchema('file://swagger', json_decode($container->get(\Phrest\Config::SWAGGER)));
                             $jsonValidator = new \JsonSchema\Validator( new \JsonSchema\Constraints\Factory($schemaStorage));
                             return new \Phrest\API\RequestBodyValidator($schemaStorage, $jsonValidator);
                         },

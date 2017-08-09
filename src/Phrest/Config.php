@@ -22,6 +22,7 @@ abstract class Config
 
     const ACTION_SWAGGER = 'phrest_action_swagger';
 
+    const SWAGGER = 'phrest_swagger';
     const HATEOAS_RESPONSE_GENERATOR = 'phrest_hateoas_response_generator';
     const REQUEST_BODY_VALIDATOR = 'phrest_request_body_validator';
 }
