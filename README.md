@@ -1,15 +1,8 @@
 #Todos
-- Action für Swagger Schema Validation
-- No swagger found?
-- Swagger error?
-- No Hateoas?
-- Hateoas error?
-- RequestBodyValidator Definition not found?
-- RequestParams Validator
-- HAL Links
-- ErrorCodes
-- UnitTests
 - ReadMe
-- HATEOAS absolute url
+- UnitTests
+- ErrorCodes (action)
+- HATEOAS absolute url (with custom URL Generator)
+- HAL Links
+- RequestSwaggerValidator -> AbstractSwaggerValidatorAction -> SwaggerData as process parameter
 - solve todos in code
-- RequestSwaggerValidator Middleware and/or AbstractAction
