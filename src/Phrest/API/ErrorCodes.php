@@ -2,8 +2,17 @@
 
 namespace Phrest\API;
 
-abstract class ErrorCode
+class ErrorCodes
 {
+    public function getErrorCodes()
+    {
+        $reflectionClass = new \ReflectionClass($this);
+        $errorCodes = $reflectionClass->getConstants();
+        unset($errorCodes['LAST_PHREST_ERROR_CODE']);
+        asort($errorCodes);
+        return $errorCodes;
+    }
+
     const UNKNOWN = 0;
 
     const INTERNAL_SERVER_ERROR = 1;

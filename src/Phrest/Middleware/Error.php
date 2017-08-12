@@ -30,7 +30,7 @@ class Error implements \Interop\Http\ServerMiddleware\MiddlewareInterface
         } catch (\Throwable $e) {
             $response = new \Zend\Diactoros\Response\JsonResponse(
                 [
-                    'code' => \Phrest\API\ErrorCode::INTERNAL_SERVER_ERROR,
+                    'code' => \Phrest\API\ErrorCodes::INTERNAL_SERVER_ERROR,
                     'message' => 'internal server error',
                     'http' => [
                         'code' => \Phrest\Http\StatusCodes::INTERNAL_SERVER_ERROR,

@@ -8,37 +8,37 @@ namespace Phrest\API;
 class RequestSwaggerValidator
 {
     static private $errorCodeMapping = [
-        'additionalItems' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_ADDITIONAL_ITEMS,
-        'additionalProp' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_ADDITIONAL_PROP,
-        'allOf' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_ALL_OF,
-        'anyOf' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_ANY_OF,
-        'dependencies' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_DEPENDENCIES,
-        'disallow' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_DISALLOW,
-        'divisibleBy' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_DIVISIBLE_BY,
-        'enum' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_ENUM,
-        'exclusiveMaximum' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_EXCLUSIVE_MAXIMUM,
-        'exclusiveMinimum' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_EXCLUSIVE_MINIMUM,
-        'format' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_FORMAT,
-        'maximum' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MAXIMUM,
-        'maxItems' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MAX_ITEMS,
-        'maxLength' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MAX_LENGTH,
-        'maxProperties' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MAX_PROPERTIES,
-        'minimum' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MINIMUM,
-        'minItems' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MIN_ITEMS,
-        'minLength' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MIN_LENGTH,
-        'minProperties' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MIN_PROPERTIES,
-        'missingMaximum' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MISSING_MAXIMUM,
-        'missingMinimum' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MISSING_MINIMUM,
-        'multipleOf' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_MULTIPLE_OF,
-        'not' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_NOT,
-        'oneOf' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_ONE_OF,
-        'pattern' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_PATTERN,
-        'pregex' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_PREGEX,
-        'required' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_REQUIRED,
-        'requires' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_REQUIRES,
-        'schema' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_SCHEMA,
-        'type' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_TYPE,
-        'uniqueItems' => \Phrest\API\ErrorCode::REQUEST_VALIDATION_UNIQUE_ITEMS,
+        'additionalItems' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_ADDITIONAL_ITEMS,
+        'additionalProp' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_ADDITIONAL_PROP,
+        'allOf' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_ALL_OF,
+        'anyOf' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_ANY_OF,
+        'dependencies' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_DEPENDENCIES,
+        'disallow' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_DISALLOW,
+        'divisibleBy' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_DIVISIBLE_BY,
+        'enum' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_ENUM,
+        'exclusiveMaximum' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_EXCLUSIVE_MAXIMUM,
+        'exclusiveMinimum' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_EXCLUSIVE_MINIMUM,
+        'format' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_FORMAT,
+        'maximum' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MAXIMUM,
+        'maxItems' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MAX_ITEMS,
+        'maxLength' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MAX_LENGTH,
+        'maxProperties' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MAX_PROPERTIES,
+        'minimum' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MINIMUM,
+        'minItems' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MIN_ITEMS,
+        'minLength' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MIN_LENGTH,
+        'minProperties' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MIN_PROPERTIES,
+        'missingMaximum' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MISSING_MAXIMUM,
+        'missingMinimum' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MISSING_MINIMUM,
+        'multipleOf' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_MULTIPLE_OF,
+        'not' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_NOT,
+        'oneOf' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_ONE_OF,
+        'pattern' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_PATTERN,
+        'pregex' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_PREGEX,
+        'required' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_REQUIRED,
+        'requires' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_REQUIRES,
+        'schema' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_SCHEMA,
+        'type' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_TYPE,
+        'uniqueItems' => \Phrest\API\ErrorCodes::REQUEST_VALIDATION_UNIQUE_ITEMS,
     ];
 
     static private $moreFields = [
@@ -130,7 +130,7 @@ class RequestSwaggerValidator
         if (count($errors)) {
             throw \Phrest\Http\Exception::BadRequest(
                 new \Phrest\API\Error(
-                    \Phrest\API\ErrorCode::REQUEST_PARAMETER_VALIDATION,
+                    \Phrest\API\ErrorCodes::REQUEST_PARAMETER_VALIDATION,
                     'request parameter validation failed',
                     ...$errors
                 )
@@ -161,7 +161,7 @@ class RequestSwaggerValidator
                 );
 
                 $errors[] = new \Phrest\API\ErrorEntry(
-                    self::$errorCodeMapping[$validatorError['constraint']] ?? \Phrest\API\ErrorCode::UNKNOWN,
+                    self::$errorCodeMapping[$validatorError['constraint']] ?? \Phrest\API\ErrorCodes::UNKNOWN,
                     $fieldName . $validatorError['pointer'],
                     $validatorError['message'],
 

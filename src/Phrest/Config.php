@@ -13,6 +13,7 @@ abstract class Config
 
     const ROUTES = 'phrest_routes';
     const DEPENDENCIES = 'phrest_dependencies';
+    const ERROR_CODES = 'phrest_error_codes';
 
     const LOGGER = 'phrest_logger';
     const SWAGGER = 'phrest_swagger';
@@ -22,6 +23,7 @@ abstract class Config
     const POST_DISPATCHING_MIDDLEWARE = 'phrest_post_dispatching_middleware';
 
     const ACTION_SWAGGER = 'phrest_action_swagger';
+    const ACTION_ERROR_CODES = 'phrest_action_error_codes';
 
     const HATEOAS_RESPONSE_GENERATOR = 'phrest_hateoas_response_generator';
     const REQUEST_SWAGGER_VALIDATOR = 'phrest_request_swagger_validator';

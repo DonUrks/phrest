@@ -81,6 +81,15 @@ class Application
                             return new \Phrest\API\Action\Swagger($container->get(\Phrest\Config::SWAGGER));
                         },
 
+                        \Phrest\Config::ACTION_ERROR_CODES => function (\Interop\Container\ContainerInterface $container) use($cache) {
+                            if($container->has(\Phrest\Config::ERROR_CODES)) {
+                                $errorCodes = $container->get(\Phrest\Config::ERROR_CODES);
+                            } else {
+                                $errorCodes = new API\ErrorCodes();
+                            }
+                            return new \Phrest\API\Action\ErrorCodes($cache, $errorCodes);
+                        },
+
                         \Phrest\Config::HATEOAS_RESPONSE_GENERATOR => function () use ($hateoas) {
                             return new \Phrest\API\HateoasResponseGenerator($hateoas);
                         },
