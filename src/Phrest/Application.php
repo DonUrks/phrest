@@ -81,8 +81,8 @@ class Application
                             return new \Phrest\API\Action\Swagger($container->get(\Phrest\Config::SWAGGER));
                         },
 
-                        \Phrest\Config::ACTION_ERROR_CODES => function (\Interop\Container\ContainerInterface $container) use($cache) {
-                            if($container->has(\Phrest\Config::ERROR_CODES)) {
+                        \Phrest\Config::ACTION_ERROR_CODES => function (\Interop\Container\ContainerInterface $container) use ($cache) {
+                            if ($container->has(\Phrest\Config::ERROR_CODES)) {
                                 $errorCodes = $container->get(\Phrest\Config::ERROR_CODES);
                             } else {
                                 $errorCodes = new API\ErrorCodes();
@@ -107,6 +107,29 @@ class Application
                         \Zend\Expressive\Router\RouterInterface::class => \Zend\Expressive\Router\FastRouteRouter::class,
                         \Zend\Expressive\Helper\ServerUrlHelper::class => \Zend\Expressive\Helper\ServerUrlHelper::class
                     ],
+                    'initializers' => [
+                        \Psr\Log\LoggerAwareInterface::class => function (\Interop\Container\ContainerInterface $container, $service) {
+                            if ($service instanceof \Psr\Log\LoggerAwareInterface) {
+                                $service->setLogger(
+                                    $container->get(\Phrest\Config::LOGGER)
+                                );
+                            }
+                        },
+                        API\RequestSwaggerValidatorAwareInterface::class => function (\Interop\Container\ContainerInterface $container, $service) {
+                            if ($service instanceof API\RequestSwaggerValidatorAwareInterface) {
+                                $service->setRequestSwaggerValidator(
+                                    $container->get(\Phrest\Config::REQUEST_SWAGGER_VALIDATOR)
+                                );
+                            }
+                        },
+                        API\HateoasResponseGeneratorAwareInterface::class => function (\Interop\Container\ContainerInterface $container, $service) {
+                            if ($service instanceof API\HateoasResponseGeneratorAwareInterface) {
+                                $service->setHateoasResponseGenerator(
+                                    $container->get(\Phrest\Config::HATEOAS_RESPONSE_GENERATOR)
+                                );
+                            }
+                        },
+                    ]
                 ]
             ]),
         ]);

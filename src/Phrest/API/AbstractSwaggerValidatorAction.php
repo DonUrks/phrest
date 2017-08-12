@@ -2,10 +2,12 @@
 
 namespace Phrest\API;
 
-abstract class AbstractAction implements
+abstract class AbstractSwaggerValidatorAction implements
     \Interop\Http\ServerMiddleware\MiddlewareInterface,
-    \Psr\Log\LoggerAwareInterface
+    \Psr\Log\LoggerAwareInterface,
+    RequestSwaggerValidatorAwareInterface
 {
+    use RequestSwaggerValidatorAwareTrait;
     use \Psr\Log\LoggerAwareTrait;
 
     /**
@@ -30,8 +32,20 @@ abstract class AbstractAction implements
             $this->throwMethodNotAllowed($method);
         }
 
+        /** @var \Zend\Expressive\Router\RouteResult $routingResult */
+        $routingResult = $request->getAttribute(\Zend\Expressive\Router\RouteResult::class);
+        if(!($routingResult instanceof \Zend\Expressive\Router\RouteResult)) {
+            throw new \Phrest\Exception('request attribute "'.\Zend\Expressive\Router\RouteResult::class.'" is not a RouteResult instance');
+        }
+        $route = $routingResult->getMatchedRoute();
+        if(!($route instanceof \Zend\Expressive\Router\Route)) {
+            throw new \Phrest\Exception('no matched route found');
+        }
+
         $method = strtolower($method);
-        return call_user_func_array([$this, $method], [$request]);
+
+        $data = $this->requestSwaggerValidator->validate($request, $method, $route->getPath());
+        return call_user_func_array([$this, $method], [$data]);
     }
 
     public function options(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
@@ -75,27 +89,27 @@ abstract class AbstractAction implements
         );
     }
 
-    public function get(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function get(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('GET');
     }
 
-    public function post(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function post(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('POST');
     }
 
-    public function put(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function put(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('PUT');
     }
 
-    public function patch(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function patch(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('PATCH');
     }
 
-    public function delete(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function delete(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('DELETE');
     }
