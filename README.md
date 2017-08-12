@@ -6,3 +6,4 @@
 - HAL Links
 - RequestSwaggerValidator -> AbstractSwaggerValidatorAction -> SwaggerData as process parameter
 - solve todos in code
+- add license information in src and composer.json
