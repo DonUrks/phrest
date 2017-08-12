@@ -1,7 +1,6 @@
 #Todos
 - ReadMe
 - UnitTests
-- ErrorCodes (action)
 - HATEOAS absolute url (with custom URL Generator)
 - HAL Links
 - RequestSwaggerValidator -> AbstractSwaggerValidatorAction -> SwaggerData as process parameter
@@ -9,4 +8,4 @@
 - add license information in src and composer.json
 - check cache speed and need (filesystem access cost vs cachable process cost)
     - granular user config for caching? (cache swagger: yes, cache error codes: no, ...)
-    - user cacbe adapter for Phrest cache?
+    - user cache adapter for Phrest cache?
