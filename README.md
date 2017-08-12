@@ -150,7 +150,7 @@ class Message extends \Phrest\API\AbstractSwaggerValidatorAction
     use \Phrest\API\HateoasResponseGeneratorAwareTrait;
     public function get(\Phrest\API\RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
     {
-        $message = \YourAPI\Model\Message(
+        $message = new \YourAPI\Model\Message(
             $data->getQueryValues()['id'],
             $data->getQueryValues()['name']
         );
