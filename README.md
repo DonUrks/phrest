@@ -3,7 +3,6 @@
 - UnitTests
 - HATEOAS absolute url (with custom URL Generator)
 - HAL Links
-- refine AbstractAction and AbstractSwaggerValidatorAction: duplicate code (use Traits?)
 - solve todos in code
 - add license information in src and composer.json
 - check cache speed and need (filesystem access cost vs cachable process cost)
