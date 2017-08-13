@@ -11,6 +11,25 @@ use Zend\ServiceManager\ServiceManager;
 
 class Application
 {
+    const CONFIG_SWAGGER_SCAN_DIRECTORY = 'phrest_config_swagger_scan_directory';
+    const CONFIG_ENABLE_CACHE = 'phrest_config_enable_cache';
+    const CONFIG_CACHE_DIRECTORY = 'phrest_config_cache_directory';
+    const CONFIG_MONOLOG_HANDLER = 'phrest_config_monolog_handler';
+    const CONFIG_MONOLOG_PROCESSOR = 'phrest_config_monolog_processor';
+    const CONFIG_PRE_ROUTING_MIDDLEWARE = 'phrest_config_pre_routing_middleware';
+    const CONFIG_PRE_DISPATCHING_MIDDLEWARE = 'phrest_config_pre_dispatching_middleware';
+    const CONFIG_ROUTES = 'phrest_config_routes';
+    const CONFIG_DEPENDENCIES = 'phrest_config_dependencies';
+    const CONFIG_ERROR_CODES = 'phrest_config_error_codes';
+
+    const ACTION_SWAGGER = 'phrest_action_swagger';
+    const ACTION_ERROR_CODES = 'phrest_action_error_codes';
+
+    const SERVICE_LOGGER = 'phrest_service_logger';
+    const SERVICE_SWAGGER = 'phrest_service_swagger';
+    const SERVICE_HATEOAS_RESPONSE_GENERATOR = 'phrest_service_hateoas_response_generator';
+    const SERVICE_REQUEST_SWAGGER_VALIDATOR = 'phrest_service_request_swagger_validator';
+
     static public function run(string $applicationName = 'phrest-application', string $configDirectoryPattern = "config/{{,*.}global,{,*.}local}.php")
     {
         $logger = new \Monolog\Logger($applicationName, [new \Monolog\Handler\StreamHandler('php://stdout')]);
@@ -23,13 +42,13 @@ class Application
         ]);
         $userConfig = $userConfigAggregator->getMergedConfig();
 
-        $swaggerScanDirectory = (string)($userConfig[\Phrest\Config::SWAGGER_SCAN_DIRECTORY] ?? null);
+        $swaggerScanDirectory = (string)($userConfig[\Phrest\Application::CONFIG_SWAGGER_SCAN_DIRECTORY] ?? null);
 
-        $enableCache = (boolean)($userConfig[\Phrest\Config::ENABLE_CACHE] ?? false);
-        $cacheDirectory = $userConfig[\Phrest\Config::CACHE_DIRECTORY] ?? null;
+        $enableCache = (boolean)($userConfig[\Phrest\Application::CONFIG_ENABLE_CACHE] ?? false);
+        $cacheDirectory = $userConfig[\Phrest\Application::CONFIG_CACHE_DIRECTORY] ?? null;
 
-        $monologHandler = $userConfig[\Phrest\Config::MONOLOG_HANDLER] ?? [];
-        $monologProcessor = $userConfig[\Phrest\Config::MONOLOG_PROCESSOR] ?? [];
+        $monologHandler = $userConfig[\Phrest\Application::CONFIG_MONOLOG_HANDLER] ?? [];
+        $monologProcessor = $userConfig[\Phrest\Application::CONFIG_MONOLOG_PROCESSOR] ?? [];
 
         /** @var \Zend\Cache\Storage\StorageInterface $cache */
         $cache = new \Zend\Cache\Storage\Adapter\BlackHole();
@@ -52,7 +71,7 @@ class Application
 
         $internalConfigAggregator = new ConfigAggregator([
             new ArrayProvider([
-                'dependencies' => $userConfig[\Phrest\Config::DEPENDENCIES] ?? []
+                'dependencies' => $userConfig[\Phrest\Application::CONFIG_DEPENDENCIES] ?? []
             ]),
             new ArrayProvider([
                 ConfigAggregator::ENABLE_CACHE => $enableCache,
@@ -63,7 +82,7 @@ class Application
                     'factories' => [
                         \Zend\Expressive\Helper\UrlHelper::class => \Zend\Expressive\Helper\UrlHelperFactory::class,
 
-                        \Phrest\Config::LOGGER => function (\Interop\Container\ContainerInterface $container) use ($logger, $monologHandler, $monologProcessor) {
+                        \Phrest\Application::SERVICE_LOGGER => function (\Interop\Container\ContainerInterface $container) use ($logger, $monologHandler, $monologProcessor) {
                             foreach ($monologHandler as $handler) {
                                 $logger->pushHandler($container->get($handler));
                             }
@@ -73,30 +92,30 @@ class Application
                             return $logger;
                         },
 
-                        \Phrest\Config::SWAGGER => function () use ($cache, $swaggerScanDirectory) {
+                        \Phrest\Application::SERVICE_SWAGGER => function () use ($cache, $swaggerScanDirectory) {
                             return new \Phrest\Swagger($cache, $swaggerScanDirectory);
                         },
 
-                        \Phrest\Config::ACTION_SWAGGER => function (\Interop\Container\ContainerInterface $container) {
-                            return new \Phrest\API\Action\Swagger($container->get(\Phrest\Config::SWAGGER));
+                        \Phrest\Application::ACTION_SWAGGER => function (\Interop\Container\ContainerInterface $container) {
+                            return new \Phrest\API\Action\Swagger($container->get(\Phrest\Application::SERVICE_SWAGGER));
                         },
 
-                        \Phrest\Config::ACTION_ERROR_CODES => function (\Interop\Container\ContainerInterface $container) use ($cache) {
-                            if ($container->has(\Phrest\Config::ERROR_CODES)) {
-                                $errorCodes = $container->get(\Phrest\Config::ERROR_CODES);
+                        \Phrest\Application::ACTION_ERROR_CODES => function (\Interop\Container\ContainerInterface $container) use ($cache) {
+                            if ($container->has(\Phrest\Application::CONFIG_ERROR_CODES)) {
+                                $errorCodes = $container->get(\Phrest\Application::CONFIG_ERROR_CODES);
                             } else {
                                 $errorCodes = new API\ErrorCodes();
                             }
                             return new \Phrest\API\Action\ErrorCodes($cache, $errorCodes);
                         },
 
-                        \Phrest\Config::HATEOAS_RESPONSE_GENERATOR => function () use ($hateoas) {
+                        \Phrest\Application::SERVICE_HATEOAS_RESPONSE_GENERATOR => function () use ($hateoas) {
                             return new \Phrest\API\HateoasResponseGenerator($hateoas);
                         },
 
-                        \Phrest\Config::REQUEST_SWAGGER_VALIDATOR => function (\Interop\Container\ContainerInterface $container) {
+                        \Phrest\Application::SERVICE_REQUEST_SWAGGER_VALIDATOR => function (\Interop\Container\ContainerInterface $container) {
                             /** @var \Phrest\Swagger $swagger */
-                            $swagger = $container->get(\Phrest\Config::SWAGGER);
+                            $swagger = $container->get(\Phrest\Application::SERVICE_SWAGGER);
                             $jsonValidator = new \JsonSchema\Validator(
                                 new \JsonSchema\Constraints\Factory($swagger->getSchemaStorage())
                             );
@@ -111,21 +130,21 @@ class Application
                         \Psr\Log\LoggerAwareInterface::class => function (\Interop\Container\ContainerInterface $container, $service) {
                             if ($service instanceof \Psr\Log\LoggerAwareInterface) {
                                 $service->setLogger(
-                                    $container->get(\Phrest\Config::LOGGER)
+                                    $container->get(\Phrest\Application::SERVICE_LOGGER)
                                 );
                             }
                         },
                         API\RequestSwaggerValidatorAwareInterface::class => function (\Interop\Container\ContainerInterface $container, $service) {
                             if ($service instanceof API\RequestSwaggerValidatorAwareInterface) {
                                 $service->setRequestSwaggerValidator(
-                                    $container->get(\Phrest\Config::REQUEST_SWAGGER_VALIDATOR)
+                                    $container->get(\Phrest\Application::SERVICE_REQUEST_SWAGGER_VALIDATOR)
                                 );
                             }
                         },
                         API\HateoasResponseGeneratorAwareInterface::class => function (\Interop\Container\ContainerInterface $container, $service) {
                             if ($service instanceof API\HateoasResponseGeneratorAwareInterface) {
                                 $service->setHateoasResponseGenerator(
-                                    $container->get(\Phrest\Config::HATEOAS_RESPONSE_GENERATOR)
+                                    $container->get(\Phrest\Application::SERVICE_HATEOAS_RESPONSE_GENERATOR)
                                 );
                             }
                         },
@@ -140,11 +159,11 @@ class Application
         $container->setService('config', $userConfig);
 
         // Register logging handler / processors - can only happen after loading user dependencies
-        $container->get(\Phrest\Config::LOGGER);
+        $container->get(\Phrest\Application::SERVICE_LOGGER);
 
         $app = new \Zend\Expressive\Application($container->get(\Zend\Expressive\Router\RouterInterface::class), $container);
 
-        $routes = $userConfig[\Phrest\Config::ROUTES] ?? [];
+        $routes = $userConfig[\Phrest\Application::CONFIG_ROUTES] ?? [];
         foreach ($routes as $name => $route) {
             $app->route($route['path'], $route['action'], ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], $name);
         }
@@ -154,19 +173,26 @@ class Application
         $app->pipe(new \Zend\Expressive\Helper\ServerUrlMiddleware($container->get(\Zend\Expressive\Helper\ServerUrlHelper::class)));
         $app->pipe(new \Phrest\Middleware\JsonRequestBody());
 
-        $app->pipe($userConfig[\Phrest\Config::PRE_ROUTING_MIDDLEWARE] ?? []);
+        $app->pipe($userConfig[\Phrest\Application::CONFIG_PRE_ROUTING_MIDDLEWARE] ?? []);
         $app->pipeRoutingMiddleware();
 
         $app->pipe(new \Zend\Expressive\Helper\UrlHelperMiddleware($container->get(\Zend\Expressive\Helper\UrlHelper::class)));
 
-        $app->pipe($userConfig[\Phrest\Config::PRE_DISPATCHING_MIDDLEWARE] ?? []);
+        $app->pipe($userConfig[\Phrest\Application::CONFIG_PRE_DISPATCHING_MIDDLEWARE] ?? []);
         $app->pipeDispatchMiddleware();
 
-        $app->pipe($userConfig[\Phrest\Config::POST_DISPATCHING_MIDDLEWARE] ?? []);
         $app->pipe(new \Phrest\Middleware\NotFound());
 
         $logger->debug('application init completed', ['userConfig' => $userConfig]);
 
         $app->run();
+    }
+
+    static public function createRoute(string $path, string $action): array
+    {
+        return [
+            'path' => $path,
+            'action' => $action
+        ];
     }
 }

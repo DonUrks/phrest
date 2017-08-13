@@ -3,8 +3,8 @@
 A php framework for your RESTful API with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will also use your scanned swagger annotations for request data validation.
 
 ## Features
-- Swagger definition in annotations ([zircote/swagger-php](https://github.com/zircote/swagger-php))
-- HATEOAS response definition in annotations ([willdurand/Hateoas](https://github.com/willdurand/Hateoas))
+- Swagger 2.0 definitions in annotations ([zircote/swagger-php](https://github.com/zircote/swagger-php))
+- HATEOAS response definitions in annotations ([willdurand/Hateoas](https://github.com/willdurand/Hateoas))
 - Request data validation against swagger data ([justinrainbow/json-schema](https://github.com/justinrainbow/json-schema))
 - PSR-3 Logging ([Seldaek/monolog](https://github.com/Seldaek/monolog))
 - Expandable with PSR-15 middleware
@@ -42,10 +42,10 @@ composer require donurks/phrest
 <?php
 return [
     // tells phrest where to look for your annotations
-    \Phrest\Config::SWAGGER_SCAN_DIRECTORY => 'src',
+    \Phrest\Application::CONFIG_SWAGGER_SCAN_DIRECTORY => 'src',
     
     // phrest uses the zend service manager for dependency injection
-    \Phrest\Config::DEPENDENCIES => [
+    \Phrest\Application::CONFIG_DEPENDENCIES => [
         'factories' => [
             \YourAPI\Action\Message::class => function(\Interop\Container\ContainerInterface $container) {
                 return new \YourAPI\Action\Message();
@@ -54,11 +54,8 @@ return [
     ],
     
     // tells phrest which action is used for each path
-    \Phrest\Config::ROUTES => [
-        'messages' => [
-            'path' => '/messages',
-            'action' => \YourAPI\Action\Message::class
-        ],
+    \Phrest\Application::CONFIG_ROUTES => [
+        'messages' => \Phrest\Application::createRoute('/messages', \YourAPI\Action\Message::class), 
     ],
 ];
 ```
@@ -125,6 +122,7 @@ This is your first action with response. All HTTP requests will end up in their 
 namespace YourAPI\Action;
 
 /**
+ * @SWG\Info(title="YourAPI", version="1.0")
  * @SWG\Get(
  *     path="/message",
  *     @SWG\Response(response="200", description="An example resource"),
