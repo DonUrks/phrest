@@ -11,6 +11,8 @@ use Zend\ServiceManager\ServiceManager;
 
 class Application
 {
+    const USER_CONFIG = 'phrest_user_config';
+
     const CONFIG_SWAGGER_SCAN_DIRECTORY = 'phrest_config_swagger_scan_directory';
     const CONFIG_ENABLE_CACHE = 'phrest_config_enable_cache';
     const CONFIG_CACHE_DIRECTORY = 'phrest_config_cache_directory';
@@ -27,6 +29,7 @@ class Application
 
     const SERVICE_LOGGER = 'phrest_service_logger';
     const SERVICE_SWAGGER = 'phrest_service_swagger';
+    const SERVICE_HATEOAS = 'phrest_service_hateoas';
     const SERVICE_HATEOAS_RESPONSE_GENERATOR = 'phrest_service_hateoas_response_generator';
     const SERVICE_REQUEST_SWAGGER_VALIDATOR = 'phrest_service_request_swagger_validator';
 
@@ -34,8 +37,6 @@ class Application
     {
         $logger = new \Monolog\Logger($applicationName, [new \Monolog\Handler\StreamHandler('php://stdout')]);
         \Monolog\ErrorHandler::register($logger);
-
-        $logger->debug('application init started', ['configDirectoryPattern' => $configDirectoryPattern]);
 
         $userConfigAggregator = new ConfigAggregator([
             new PhpFileProvider($configDirectoryPattern),
@@ -50,24 +51,7 @@ class Application
         $monologHandler = $userConfig[\Phrest\Application::CONFIG_MONOLOG_HANDLER] ?? [];
         $monologProcessor = $userConfig[\Phrest\Application::CONFIG_MONOLOG_PROCESSOR] ?? [];
 
-        /** @var \Zend\Cache\Storage\StorageInterface $cache */
-        $cache = new \Zend\Cache\Storage\Adapter\BlackHole();
-        if ($enableCache) {
-            $cache = new \Zend\Cache\Storage\Adapter\Filesystem();
-            $cache->setOptions([
-                'cache_dir' => $cacheDirectory,
-                'ttl' => 0
-            ]);
-        }
-
-        // HATEOAS
-        /* @todo registerLoader is deprecated! */
-        \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
-        $hateoasBuilder = \Hateoas\HateoasBuilder::create();
-        if ($enableCache) {
-            $hateoasBuilder->setCacheDir($cacheDirectory);
-        }
-        $hateoas = $hateoasBuilder->build();
+        $cache = self::createCache($enableCache, $cacheDirectory);
 
         $internalConfigAggregator = new ConfigAggregator([
             new ArrayProvider([
@@ -96,6 +80,16 @@ class Application
                             return new \Phrest\Swagger($cache, $swaggerScanDirectory);
                         },
 
+                        \Phrest\Application::SERVICE_HATEOAS => function () use ($enableCache, $cacheDirectory) {
+                            /* @todo registerLoader is deprecated! */
+                            \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
+                            $hateoasBuilder = \Hateoas\HateoasBuilder::create();
+                            if ($enableCache) {
+                                $hateoasBuilder->setCacheDir($cacheDirectory);
+                            }
+                            return $hateoasBuilder->build();
+                        },
+
                         \Phrest\Application::ACTION_SWAGGER => function (\Interop\Container\ContainerInterface $container) {
                             return new \Phrest\API\Action\Swagger($container->get(\Phrest\Application::SERVICE_SWAGGER));
                         },
@@ -109,8 +103,10 @@ class Application
                             return new \Phrest\API\Action\ErrorCodes($cache, $errorCodes);
                         },
 
-                        \Phrest\Application::SERVICE_HATEOAS_RESPONSE_GENERATOR => function () use ($hateoas) {
-                            return new \Phrest\API\HateoasResponseGenerator($hateoas);
+                        \Phrest\Application::SERVICE_HATEOAS_RESPONSE_GENERATOR => function (\Interop\Container\ContainerInterface $container) {
+                            return new \Phrest\API\HateoasResponseGenerator(
+                                $container->get(\Phrest\Application::SERVICE_HATEOAS)
+                            );
                         },
 
                         \Phrest\Application::SERVICE_REQUEST_SWAGGER_VALIDATOR => function (\Interop\Container\ContainerInterface $container) {
@@ -152,40 +148,76 @@ class Application
                 ]
             ]),
         ]);
-        $internalConfig = $internalConfigAggregator->getMergedConfig();
 
-        $container = new ServiceManager();
-        (new Config($internalConfig['dependencies'] ?? []))->configureServiceManager($container);
-        $container->setService('config', $userConfig);
+        $container = self::createContainer(
+            $internalConfigAggregator->getMergedConfig(),
+            $userConfig
+        );
 
-        // Register logging handler / processors - can only happen after loading user dependencies
+        // Register logging handler / processors - can only happen after loaded user dependencies
         $container->get(\Phrest\Application::SERVICE_LOGGER);
 
         $app = new \Zend\Expressive\Application($container->get(\Zend\Expressive\Router\RouterInterface::class), $container);
 
-        $routes = $userConfig[\Phrest\Application::CONFIG_ROUTES] ?? [];
+        self::registerRoutes($app, $userConfig[\Phrest\Application::CONFIG_ROUTES] ?? []);
+        self::pipeMiddleware(
+            $app,
+            $userConfig[\Phrest\Application::CONFIG_PRE_ROUTING_MIDDLEWARE] ?? [],
+            $userConfig[\Phrest\Application::CONFIG_PRE_DISPATCHING_MIDDLEWARE] ?? []
+        );
+
+        $logger->debug('application init completed', ['userConfig' => $userConfig]);
+
+        $app->run();
+    }
+
+    static function createCache(bool $enableCache, string $cacheDirectory): \Zend\Cache\Storage\StorageInterface
+    {
+        $cache = new \Zend\Cache\Storage\Adapter\BlackHole();
+        if ($enableCache) {
+            $cache = new \Zend\Cache\Storage\Adapter\Filesystem();
+            $cache->setOptions([
+                'cache_dir' => $cacheDirectory,
+                'ttl' => 0
+            ]);
+        }
+        return $cache;
+    }
+
+    static function createContainer(array $internalConfig, array $userConfig): \Interop\Container\ContainerInterface
+    {
+        $container = new ServiceManager();
+        (new Config($internalConfig['dependencies'] ?? []))->configureServiceManager($container);
+        $container->setService(self::USER_CONFIG, $userConfig);
+        return $container;
+    }
+
+    static private function registerRoutes(\Zend\Expressive\Application $app, array $routes)
+    {
         foreach ($routes as $name => $route) {
             $app->route($route['path'], $route['action'], ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], $name);
         }
+    }
+
+    static private function pipeMiddleware(\Zend\Expressive\Application $app, array $preRoutingMiddleware, array $preDispatchingMiddleware)
+    {
+        $container = $app->getContainer();
+        $logger = $container->get(\Phrest\Application::SERVICE_LOGGER);
 
         $app->pipe(new \Phrest\Middleware\Error($logger));
         $app->pipe(new \Phrest\Middleware\HttpException($logger));
         $app->pipe(new \Zend\Expressive\Helper\ServerUrlMiddleware($container->get(\Zend\Expressive\Helper\ServerUrlHelper::class)));
         $app->pipe(new \Phrest\Middleware\JsonRequestBody());
 
-        $app->pipe($userConfig[\Phrest\Application::CONFIG_PRE_ROUTING_MIDDLEWARE] ?? []);
+        $app->pipe($preRoutingMiddleware);
         $app->pipeRoutingMiddleware();
 
         $app->pipe(new \Zend\Expressive\Helper\UrlHelperMiddleware($container->get(\Zend\Expressive\Helper\UrlHelper::class)));
 
-        $app->pipe($userConfig[\Phrest\Application::CONFIG_PRE_DISPATCHING_MIDDLEWARE] ?? []);
+        $app->pipe($preDispatchingMiddleware);
         $app->pipeDispatchMiddleware();
 
         $app->pipe(new \Phrest\Middleware\NotFound());
-
-        $logger->debug('application init completed', ['userConfig' => $userConfig]);
-
-        $app->run();
     }
 
     static public function createRoute(string $path, string $action): array
