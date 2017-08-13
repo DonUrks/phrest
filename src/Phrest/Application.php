@@ -80,13 +80,31 @@ class Application
                             return new \Phrest\Swagger($cache, $swaggerScanDirectory);
                         },
 
-                        \Phrest\Application::SERVICE_HATEOAS => function () use ($enableCache, $cacheDirectory) {
+                        \Phrest\Application::SERVICE_HATEOAS => function (\Interop\Container\ContainerInterface $container) use ($enableCache, $cacheDirectory) {
+                            /** @var \Zend\Expressive\Router\RouterInterface $router */
+                            $router = $container->get(\Zend\Expressive\Router\RouterInterface::class);
+
+                            /** @var \Zend\Expressive\Helper\ServerUrlHelper $serverUrlHelper */
+                            $serverUrlHelper = $container->get(\Zend\Expressive\Helper\ServerUrlHelper::class);
+
                             /* @todo registerLoader is deprecated! */
                             \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
                             $hateoasBuilder = \Hateoas\HateoasBuilder::create();
                             if ($enableCache) {
                                 $hateoasBuilder->setCacheDir($cacheDirectory);
                             }
+                            $hateoasBuilder->setUrlGenerator(
+                                null,
+                                new \Hateoas\UrlGenerator\CallableUrlGenerator(
+                                    function ($route, array $parameters, $absolute) use ($router, $serverUrlHelper) {
+                                        $uri = $router->generateUri($route, $parameters);
+                                        if($absolute) {
+                                            return $serverUrlHelper($uri);
+                                        }
+                                        return $uri;
+                                    }
+                                )
+                            );
                             return $hateoasBuilder->build();
                         },
 

@@ -187,7 +187,6 @@ This should show no error.
 ## Todos
 - ReadMe
 - UnitTests
-- HATEOAS absolute url (with custom URL Generator)
 - HAL Links
 - solve todos in code
 - add license information in src and composer.json
