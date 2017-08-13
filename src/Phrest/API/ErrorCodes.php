@@ -62,5 +62,5 @@ class ErrorCodes
     const REQUEST_PARAMETER_VALIDATION = 42;
     const PATH_NOT_FOUND = 43;
 
-    const LAST_PHREST_ERROR_CODE = 43;
+    const LAST_PHREST_ERROR_CODE = 1000;
 }
