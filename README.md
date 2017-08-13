@@ -184,6 +184,64 @@ This will show you an error. The required query parameter "id" is missing. Let's
 #### [http://localhost/messages?id=4](http://localhost/messages?id=4)
 This should show no error.
  
+## Advanced usage
+### Phrest actions
+#### Swagger
+You can use the phrest swagger action to publish your swagger definitions for your API consumers.
+```php
+<?php
+// your configuration file
+return [
+    \Phrest\Application::CONFIG_ROUTES => [
+        'swagger' => \Phrest\Application::createRoute(
+            '/your/path/to/swagger', 
+            \Phrest\Application::ACTION_SWAGGER
+        ), 
+    ],
+];
+```
+Now call [http://localhost/your/path/to/swagger](http://localhost/your/path/to/swagger) to see your swagger definitions. Ready to use with [Swagger UI](https://github.com/swagger-api/swagger-ui). 
+#### Error codes
+You can use the phrest error codes action to publish your error codes for your API consumers.
+```php
+<?php
+// your configuration file
+return [
+    \Phrest\Application::CONFIG_ROUTES => [
+        'error_codes' => \Phrest\Application::createRoute(
+            '/your/path/to/error_codes', 
+            \Phrest\Application::ACTION_ERROR_CODES
+        ), 
+    ],
+];
+```
+Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) to see your error codes. 
+##### Using your own error codes
+You can tell phrest what error codes class to use. Just provide a service named \Phrest\Application::CONFIG_ERROR_CODES. Phrest uses error codes from 0 to 1000. To avoid conflicts you should use LAST_PHREST_ERROR_CODE as base for your own error codes. 
+```php
+<?php
+namespace Application;
+class ErrorCodes extends \Phrest\API\ErrorCodes
+{
+    const MY_OWN_ERROR = self::LAST_PHREST_ERROR_CODE + 1;
+    const MY_OWN_ERROR_2 = self::LAST_PHREST_ERROR_CODE + 2;
+}
+```
+```php
+<?php
+// your configuration file
+return [
+    \Phrest\Application::CONFIG_DEPENDENCIES => [
+        'factories' => [
+            \Phrest\Application::CONFIG_ERROR_CODES => function () {
+                return new \Application\ErrorCodes();
+            },
+        ]
+    ],
+];
+```
+Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) and you should see the phrest error codes and your own error codes.
+
 ## Todos
 - ReadMe
 - UnitTests
@@ -193,3 +251,4 @@ This should show no error.
 - check cache speed and need (filesystem access cost vs cachable process cost)
     - granular user config for caching? (cache swagger: yes, cache error codes: no, ...)
     - user cache adapter for Phrest cache?
+    
