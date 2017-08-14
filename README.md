@@ -44,6 +44,12 @@ return [
     // tells phrest where to look for your annotations
     \Phrest\Application::CONFIG_SWAGGER_SCAN_DIRECTORY => 'src',
     
+    // phrest cache directory
+    \Phrest\Application::CONFIG_CACHE_DIRECTORY => 'cache/phrest',
+    
+    // enable, disable cache
+    \Phrest\Application::CONFIG_ENABLE_CACHE => false,
+    
     // phrest uses the zend service manager for dependency injection
     \Phrest\Application::CONFIG_DEPENDENCIES => [
         'factories' => [
