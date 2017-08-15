@@ -251,7 +251,8 @@ Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/
 ## Todos
 - ReadMe
 - UnitTests
-- HAL Links
+- HAL Links (now part of OpenAPI Spec 3.0)
+    - (OpenAPI Spec 3.0)[https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#linkObject]
 - solve todos in code
 - add license information in src and composer.json
 - check cache speed and need (filesystem access cost vs cachable process cost)
