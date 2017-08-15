@@ -251,10 +251,10 @@ Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/
 ## Todos
 - ReadMe
 - UnitTests
+- add OpenAPI Spec 3.0 support (as soon as zircote/swagger-php 3.0 is released)
 - HAL Links (now part of OpenAPI Spec 3.0)
     - [OpenAPI Spec 3.0 - Link Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#linkObject)
 - solve todos in code
-- add license information in src and composer.json
 - check cache speed and need (filesystem access cost vs cachable process cost)
     - granular user config for caching? (cache swagger: yes, cache error codes: no, ...)
     - user cache adapter for Phrest cache?
