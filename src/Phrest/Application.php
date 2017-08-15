@@ -189,7 +189,7 @@ class Application
         $app->run();
     }
 
-    static function createCache(bool $enableCache, string $cacheDirectory): \Zend\Cache\Storage\StorageInterface
+    static function createCache(bool $enableCache, ?string $cacheDirectory): \Zend\Cache\Storage\StorageInterface
     {
         $cache = new \Zend\Cache\Storage\Adapter\BlackHole();
         if ($enableCache) {
