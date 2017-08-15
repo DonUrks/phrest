@@ -71,12 +71,14 @@ class Application
                         \Zend\Expressive\Helper\UrlHelper::class => \Zend\Expressive\Helper\UrlHelperFactory::class,
 
                         \Phrest\Application::SERVICE_LOGGER => function (\Interop\Container\ContainerInterface $container) use ($logger, $monologHandler, $monologProcessor) {
+                            $handlers = [];
                             foreach ($monologHandler as $handler) {
-                                $logger->pushHandler($container->get($handler));
+                                $handlers[] = $container->get($handler);
                             }
                             foreach ($monologProcessor as $processor) {
                                 $logger->pushProcessor($container->get($processor));
                             }
+                            $logger->setHandlers($handlers);
                             return $logger;
                         },
 
