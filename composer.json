@@ -1,6 +1,20 @@
 {
   "name": "donurks/phrest",
   "description": "A REST API lib with swagger and hateoas support.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["json", "rest", "api", "hateoas", "swagger"],
+  "homepage": "https://github.com/donurks/phrest/",
+  "authors": [
+        {
+            "name": "Eric Müller",
+            "homepage": "https://github.com/donurks"
+        },
+        {
+            "name": "Max Epperlein",
+            "homepage": "https://github.com/manieperplex"
+        }
+  ],
   "autoload": {
     "psr-4": {
       "Phrest\\": "src/Phrest/"
