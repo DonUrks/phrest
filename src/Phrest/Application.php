@@ -23,11 +23,13 @@ class Application
     const CONFIG_ROUTES = 'phrest_config_routes';
     const CONFIG_DEPENDENCIES = 'phrest_config_dependencies';
     const CONFIG_ERROR_CODES = 'phrest_config_error_codes';
+    const CONFIG_ROUTER = 'phrest_config_router';
 
     const ACTION_SWAGGER = 'phrest_action_swagger';
     const ACTION_ERROR_CODES = 'phrest_action_error_codes';
 
     const SERVICE_LOGGER = 'phrest_service_logger';
+    const SERVICE_ROUTER = 'phrest_service_router';
     const SERVICE_SWAGGER = 'phrest_service_swagger';
     const SERVICE_HATEOAS = 'phrest_service_hateoas';
     const SERVICE_HATEOAS_RESPONSE_GENERATOR = 'phrest_service_hateoas_response_generator';
@@ -50,6 +52,8 @@ class Application
 
         $monologHandler = $userConfig[\Phrest\Application::CONFIG_MONOLOG_HANDLER] ?? [];
         $monologProcessor = $userConfig[\Phrest\Application::CONFIG_MONOLOG_PROCESSOR] ?? [];
+
+        $router = $userConfig[\Phrest\Application::CONFIG_ROUTER] ?? null;
 
         $cache = self::createCache($enableCache, $cacheDirectory);
 
@@ -98,7 +102,7 @@ class Application
                                 new \Hateoas\UrlGenerator\CallableUrlGenerator(
                                     function ($route, array $parameters, $absolute) use ($router, $serverUrlHelper) {
                                         $uri = $router->generateUri($route, $parameters);
-                                        if($absolute) {
+                                        if ($absolute) {
                                             return $serverUrlHelper($uri);
                                         }
                                         return $uri;
@@ -135,9 +139,19 @@ class Application
                             );
                             return new \Phrest\API\RequestSwaggerValidator($swagger, $jsonValidator);
                         },
+
+                        \Phrest\Application::SERVICE_ROUTER => function (\Interop\Container\ContainerInterface $container) use ($router) {
+                            if ($router) {
+                                return $container->get($router);
+                            }
+                            return new \Zend\Expressive\Router\FastRouteRouter();
+                        },
+
+                        \Zend\Expressive\Router\RouterInterface::class => function (\Interop\Container\ContainerInterface $container) {
+                            return $container->get(\Phrest\Application::SERVICE_ROUTER);
+                        }
                     ],
                     'invokables' => [
-                        \Zend\Expressive\Router\RouterInterface::class => \Zend\Expressive\Router\FastRouteRouter::class,
                         \Zend\Expressive\Helper\ServerUrlHelper::class => \Zend\Expressive\Helper\ServerUrlHelper::class
                     ],
                     'initializers' => [
