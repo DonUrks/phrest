@@ -50,6 +50,14 @@ return [
 ];
 ```
 
+You can use your own config file load pattern (glob) by providing a second parameter to ```\Phrest\Application::run```
+
+```php
+<?php
+\Phrest\Application::run('phrest-example', 'my_own_config_dir/just_one_config_file.php');
+``` 
+
+### Config
 For phrest configuration there are predefined class constants on ```\Phrest\Application``` which you can use as config entries in your config array.
 
 ```php
@@ -59,17 +67,9 @@ return [
 ];
 ```
 
-You can use your own config file load pattern (glob) by providing a second parameter to ```\Phrest\Application::run```
-
-```php
-<?php
-\Phrest\Application::run('phrest-example', 'my_own_config_dir/just_one_config_file.php');
-``` 
-
-### Config
 \Phrest\Application constant | Type | Description
 ---|:---:|---
-CONFIG_ENABLE_CACHE | boolean | If true, phrest will cache swagger, HATEOAS and configurations. If true ```CONFIG_CACHE_DIRECTORY``` is required! 
+CONFIG_ENABLE_CACHE | boolean | If true, phrest will cache swagger, HATEOAS and configurations. If true ```CONFIG_CACHE_DIRECTORY``` is **required**! 
 CONFIG_CACHE_DIRECTORY | string | The directory where phrest will cache. Make sure this directory is phrest exclusive to avoid conflicts (```cache/phrest/``` is a good choice).
 CONFIG_SWAGGER_SCAN_DIRECTORY | string | Tells phrest where to look for your swagger annotations. Usually this is your ```src/``` directory.
 CONFIG_DEPENDENCIES | array | Phrest uses the [zend-servicemanager](https://zendframework.github.io/zend-servicemanager/). Place your zend-servicemanager config here.
