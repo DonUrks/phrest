@@ -160,6 +160,8 @@ ACTION_ERROR_CODES | Provides all possible error codes in json format. See [Erro
 
 ## Request swagger validator
 
+## Exceptions
+
 ## Error codes
 You can use the phrest error codes action to publish your error codes for your API consumers.
 ```php
