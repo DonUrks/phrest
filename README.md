@@ -35,6 +35,13 @@ require_once "vendor/autoload.php";
 composer create-project donurks/phrest-skeleton
 ```
 
+## \Phrest\Application::run parameters
+Name | Type | Default | Description
+---|:---:|:---:|---
+applicationName | string | phrest-application | The name of your application. Used for Logging.
+configDirectoryPattern | string | config/{{,*.}global,{,*.}local}.php | The glob pattern used for loading and merging your config files.
+request | \Psr\Http\Message\ServerRequestInterface | ServerRequestFactory::fromGlobals() | If you want to provide your own request object instead of using the global variables. Useful for unit testing.
+
 ## Configuration
 By default phrest will look at your config/ directory and will load and merge all config files in the following order:
 - global.php
@@ -77,7 +84,6 @@ CONFIG_ROUTES | array['path' => string, 'action' => string] | Bring path and act
 CONFIG_MONOLOG_HANDLER | string[] | You can register one or more Monolog handlers. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
 CONFIG_MONOLOG_PROCESSOR | string[] | You can register one or more Monolog processors. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
 CONFIG_ERROR_CODES | string | Tells phrest to use your error codes class. String must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must extends ```\Phrest\API\ErrorCodes```. See [Using your own error codes](#using-your-own-error-codes).
-CONFIG_ROUTER | string | Tells phrest to use your router. String must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Zend\Expressive\Router\RouterInterface```.
 CONFIG_PRE_ROUTING_MIDDLEWARE | string[] | Register your own middleware called before routing. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
 CONFIG_PRE_DISPATCHING_MIDDLEWARE | string[] | Register your own middleware called before dispatching the action. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
 
@@ -123,7 +129,7 @@ return [
 \Phrest\Application constant | Interface | Description
 ---|:---:|---
 SERVICE_LOGGER | \Psr\Log\LoggerInterface | Writes log entries to all registered ```CONFIG_MONOLOG_HANDLER```
-SERVICE_ROUTER | \Zend\Expressive\Router\RouterInterface | The router used to determine the action. Customizable with ```CONFIG_ROUTER```.
+SERVICE_ROUTER | \Zend\Expressive\Router\RouterInterface | The router used to determine the action.
 SERVICE_SWAGGER | \Phrest\Swagger | The phrest swagger abstraction.
 SERVICE_HATEOAS | \Hateoas\Hateoas | The HATEOAS serializer / deserializer.
 SERVICE_HATEOAS_RESPONSE_GENERATOR | \Phrest\API\HateoasResponseGenerator | Can be used to generate json response with the help of willdurand/Hateoas. See [HATEOAS response generator](#hateoas-response-generator)

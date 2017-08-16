@@ -11,6 +11,7 @@ use Zend\ServiceManager\ServiceManager;
 
 class Application
 {
+    const DEFAULT_CONFIG_DIRECTORY_PATTERN = 'config/{{,*.}global,{,*.}local}.php';
     const USER_CONFIG = 'phrest_user_config';
 
     const CONFIG_SWAGGER_SCAN_DIRECTORY = 'phrest_config_swagger_scan_directory';
@@ -23,7 +24,6 @@ class Application
     const CONFIG_ROUTES = 'phrest_config_routes';
     const CONFIG_DEPENDENCIES = 'phrest_config_dependencies';
     const CONFIG_ERROR_CODES = 'phrest_config_error_codes';
-    const CONFIG_ROUTER = 'phrest_config_router';
 
     const ACTION_SWAGGER = 'phrest_action_swagger';
     const ACTION_ERROR_CODES = 'phrest_action_error_codes';
@@ -35,7 +35,11 @@ class Application
     const SERVICE_HATEOAS_RESPONSE_GENERATOR = 'phrest_service_hateoas_response_generator';
     const SERVICE_REQUEST_SWAGGER_VALIDATOR = 'phrest_service_request_swagger_validator';
 
-    static public function run(string $applicationName = 'phrest-application', string $configDirectoryPattern = "config/{{,*.}global,{,*.}local}.php")
+    static public function run(
+        string $applicationName = 'phrest-application',
+        string $configDirectoryPattern = self::DEFAULT_CONFIG_DIRECTORY_PATTERN,
+        ?\Psr\Http\Message\ServerRequestInterface $request = null
+    )
     {
         $logger = new \Monolog\Logger($applicationName, [new \Monolog\Handler\StreamHandler('php://stdout')]);
         \Monolog\ErrorHandler::register($logger);
@@ -53,7 +57,6 @@ class Application
         $monologHandler = $userConfig[\Phrest\Application::CONFIG_MONOLOG_HANDLER] ?? [];
         $monologProcessor = $userConfig[\Phrest\Application::CONFIG_MONOLOG_PROCESSOR] ?? [];
 
-        $router = $userConfig[\Phrest\Application::CONFIG_ROUTER] ?? null;
         $errorCodes = $userConfig[\Phrest\Application::CONFIG_ERROR_CODES] ?? null;
 
         $cache = self::createCache($enableCache, $cacheDirectory);
@@ -143,10 +146,7 @@ class Application
                             return new \Phrest\API\RequestSwaggerValidator($swagger, $jsonValidator);
                         },
 
-                        \Phrest\Application::SERVICE_ROUTER => function (\Interop\Container\ContainerInterface $container) use ($router) {
-                            if ($router) {
-                                return $container->get($router);
-                            }
+                        \Phrest\Application::SERVICE_ROUTER => function (\Interop\Container\ContainerInterface $container) {
                             return new \Zend\Expressive\Router\FastRouteRouter();
                         },
 
@@ -203,7 +203,7 @@ class Application
 
         $logger->debug('application init completed', ['userConfig' => $userConfig]);
 
-        $app->run();
+        $app->run($request);
     }
 
     static function createCache(bool $enableCache, ?string $cacheDirectory): \Zend\Cache\Storage\StorageInterface
