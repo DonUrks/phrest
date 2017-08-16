@@ -178,7 +178,7 @@ return [
 ```
 Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) to see your error codes. 
 ### Using your own error codes
-You can tell phrest what error codes class to use. Just register your ErrorCodes class under ```\Phrest\Application::CONFIG_ERROR_CODES```. Phrest uses error codes from 0 to 1000. To avoid conflicts you should use LAST_PHREST_ERROR_CODE as base for your own error codes. 
+You can tell phrest what error codes class to use. Just register your ErrorCodes class under ```\Phrest\Application::CONFIG_ERROR_CODES```. Phrest uses error codes from 0 to 1000. To avoid conflicts you should use ```LAST_PHREST_ERROR_CODE``` as base for your own error codes. 
 ```php
 <?php
 namespace Application;
