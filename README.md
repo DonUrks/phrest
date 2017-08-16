@@ -16,198 +16,151 @@ A php framework for your RESTful API with JSON and Swagger support. Phrest will 
 - PHP 7.1
 
 ## Installation (with [Composer](https://getcomposer.org))
-
+### Command line
 ```sh
 composer require donurks/phrest
 ```
-
-## Basic usage
-### Project structure
-- create the following files and directories
-    - public/
-        - index.php
-    - config/
-        - global.php
-    - cache/
-        - phrest/
-    - src/
-        - YourAPI/
-            - Action/
-                - Message.php
-            - Model/
-                - Message.php
-                
-### config/global.php
-```php
-<?php
-return [
-    // tells phrest where to look for your annotations
-    \Phrest\Application::CONFIG_SWAGGER_SCAN_DIRECTORY => 'src',
-    
-    // phrest cache directory
-    \Phrest\Application::CONFIG_CACHE_DIRECTORY => 'cache/phrest',
-    
-    // enable, disable cache
-    \Phrest\Application::CONFIG_ENABLE_CACHE => false,
-    
-    // phrest uses the zend service manager for dependency injection
-    \Phrest\Application::CONFIG_DEPENDENCIES => [
-        'factories' => [
-            \YourAPI\Action\Message::class => function(\Interop\Container\ContainerInterface $container) {
-                return new \YourAPI\Action\Message();
-            },
-        ]
-    ],
-    
-    // tells phrest which action is used for each path
-    \Phrest\Application::CONFIG_ROUTES => [
-        'messages' => \Phrest\Application::createRoute('/messages', \YourAPI\Action\Message::class), 
-    ],
-];
-```
-
 ### public/index.php
-This is the entry point to your API. Make sure that your webservers document root points here.
 ```php
 <?php
 chdir(dirname(__DIR__));
 require_once "vendor/autoload.php";
 
-// start the API and use the configuration in config/
-\Phrest\Application::run('YourAPI');
-```
-### src/YourAPI/Model/Message.php
-```php
-<?php
-
-namespace Application\Model;
-
-/**
- * @SWG\Definition(
- *      definition="Message",
- *      type="object",
- *      required={"id", "name"},
- *      @SWG\Property(
- *          property="id",
- *          type="number",
- *          format="int64"
- *      ),
- *      @SWG\Property(
- *          property="name",
- *          type="string"
- *      )
- *  )
- */
-
-/**
- * @Hateoas\Configuration\Annotation\Relation("self", href = "expr('/api/messages/' ~ object.getId())")
- */
-class Message
-{
-    private $id;
-    private $name;
-
-    public function __construct($id, $name)
-    {
-        $this->id = $id;
-        $this->name = $name;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-}
+\Phrest\Application::run('phrest-example');
 ```
 
-### src/YourAPI/Action/Message.php
-This is your first action with response. All HTTP requests will end up in their HTTP method specific methods. 
-```php
-<?php
+## Quickstart (with [donurks/phrest-skeleton](https://github.com/DonUrks/phrest-skeleton))
 
-namespace YourAPI\Action;
-
-/**
- * @SWG\Info(title="YourAPI", version="1.0")
- * @SWG\Get(
- *     path="/message",
- *     @SWG\Response(response="200", description="An example resource"),
- *     @SWG\Parameter(
- *      name="id",
- *      description="id",
- *      type="number",
- *      in="query",
- *      required=true
- *     ),
- *     @SWG\Parameter(
- *      name="name",
- *      description="Name",
- *      type="string",
- *      in="query",
- *      default="no name" 
- *     )
- * )
- */
-class Message extends \Phrest\API\AbstractSwaggerValidatorAction 
-                implements \Phrest\API\HateoasResponseGeneratorAwareInterface
-{
-    use \Phrest\API\HateoasResponseGeneratorAwareTrait;
-    public function get(\Phrest\API\RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
-    {
-        $message = new \YourAPI\Model\Message(
-            $data->getQueryValues()['id'],
-            $data->getQueryValues()['name']
-        );
-        return $this->hateoasResponseGenerator->generate($message);
-    }
-}
-```
-        
-### Autoload for YourAPI (Composer)
-Don't forget to add the YourAPI namespace to the autoloader.
-```json
-{
-    "autoload": {
-        "psr-4": {
-          "YourAPI\\": "src/YourAPI/"
-        }
-    }
-}
-```
 ```sh
-composer install
+composer create-project donurks/phrest-skeleton
 ```
 
-### Call your API
-You can use the internal php webserver to test your API:
-```sh
-php.exe -S 0.0.0.0:80 -t public
-```
+## Configuration
+By default phrest will look at your config/ directory and will load and merge all config files in the following order:
+- global.php
+- *.global.php
+- local.php
+- *.local.php
 
-#### [http://localhost/messages](http://localhost/messages) 
-This will show you an error. The required query parameter "id" is missing. Let's give it another try.
-
-#### [http://localhost/messages?id=4](http://localhost/messages?id=4)
-This should show no error.
- 
-## Advanced usage
-### Phrest actions
-#### Swagger
-You can use the phrest swagger action to publish your swagger definitions for your API consumers.
 ```php
 <?php
-// your configuration file
+// Config files should return arrays
+return [
+    'my-config-entry' => 'my-config-value'
+];
+```
+
+For phrest configuration there are predefined class constants on ```\Phrest\Application``` which you can use as config entries in your config array.
+
+```php
+<?php
+return [
+    \Phrest\Application::CONFIG_ENABLE_CACHE  => true
+];
+```
+
+You can use your own config file load pattern (glob) by providing a second parameter to ```\Phrest\Application::run```
+
+```php
+<?php
+\Phrest\Application::run('phrest-example', 'my_own_config_dir/just_one_config_file.php');
+``` 
+
+### Config
+\Phrest\Application constant | Type | Description
+---|:---:|---
+CONFIG_ENABLE_CACHE | boolean | If true, phrest will cache swagger, HATEOAS and configurations. If true ```CONFIG_CACHE_DIRECTORY``` is required! 
+CONFIG_CACHE_DIRECTORY | string | The directory where phrest will cache. Make sure this directory is phrest exclusive to avoid conflicts (```cache/phrest/``` is a good choice).
+CONFIG_SWAGGER_SCAN_DIRECTORY | string | Tells phrest where to look for your swagger annotations. Usually this is your ```src/``` directory.
+CONFIG_DEPENDENCIES | array | Phrest uses the [zend-servicemanager](https://zendframework.github.io/zend-servicemanager/). Place your zend-servicemanager config here.
+CONFIG_ROUTES | array['path' => string, 'action' => string] | Bring path and action together. Each action must be a string refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implement ```\Interop\Http\ServerMiddleware\MiddlewareInterface``` - or just use phrest [Abstract actions](#abstract-actions). See also [Routing](#routing).
+CONFIG_MONOLOG_HANDLER | string[] | You can register one or more Monolog handlers. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
+CONFIG_MONOLOG_PROCESSOR | string[] | You can register one or more Monolog processors. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
+CONFIG_ERROR_CODES | string | Tells phrest to use your error codes class. String must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must extends ```\Phrest\API\ErrorCodes```. See [Using your own error codes](#using-your-own-error-codes).
+CONFIG_ROUTER | string | Tells phrest to use your router. String must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Zend\Expressive\Router\RouterInterface```.
+CONFIG_PRE_ROUTING_MIDDLEWARE | string[] | Register your own middleware called before routing. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
+CONFIG_PRE_DISPATCHING_MIDDLEWARE | string[] | Register your own middleware called before dispatching the action. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
+
+### User config
+Your whole configuration is accessible in the container with the ```\Phrest\Application::USER_CONFIG``` constant.
+
+```php
+<?php
+return [
+    'my-own-config' => 'some-value',
+
+    \Phrest\Application::CONFIG_DEPENDENCIES => [
+        'factories' => [
+            \Application\Action\SomeAction::class => function (\Interop\Container\ContainerInterface $container) {
+                $userConfig = $container->get(\Phrest\Application::USER_CONFIG);
+                $myOwnConfigValue = $userConfig['my-own-config'];
+                
+                // ...
+            },
+        ]
+    ],
+];
+``` 
+
+### Services
+Phrest provides several services for you. You can access them in your zend-servicemanager factory container.
+
+```php
+<?php
+return [
+    \Phrest\Application::CONFIG_DEPENDENCIES => [
+        'factories' => [
+            \Application\Action\SomeAction::class => function (\Interop\Container\ContainerInterface $container) {
+                return new \Application\Action\SomeAction(
+                    $container->get(\Phrest\Application::SERVICE_LOGGER)
+                );
+            },
+        ]
+    ],
+];
+``` 
+
+\Phrest\Application constant | Interface | Description
+---|:---:|---
+SERVICE_LOGGER | \Psr\Log\LoggerInterface | Writes log entries to all registered ```CONFIG_MONOLOG_HANDLER```
+SERVICE_ROUTER | \Zend\Expressive\Router\RouterInterface | The router used to determine the action. Customizable with ```CONFIG_ROUTER```.
+SERVICE_SWAGGER | \Phrest\Swagger | The phrest swagger abstraction.
+SERVICE_HATEOAS | \Hateoas\Hateoas | The HATEOAS serializer / deserializer.
+SERVICE_HATEOAS_RESPONSE_GENERATOR | \Phrest\API\HateoasResponseGenerator | Can be used to generate json response with the help of willdurand/Hateoas. See [HATEOAS response generator](#hateoas-response-generator)
+SERVICE_REQUEST_SWAGGER_VALIDATOR | \Phrest\API\RequestSwaggerValidator | Can be used to validate request data against swagger schema. See [Request swagger validator](#request-swagger-validator)   
+
+### Actions
+Phrest provides several actions for you. You can use them by simple bound them to paths.
+
+```php
+<?php
 return [
     \Phrest\Application::CONFIG_ROUTES => [
+        // call http://your-host/swagger to see your swagger file
         'swagger' => \Phrest\Application::createRoute(
-            '/your/path/to/swagger', 
+            '/swagger', 
             \Phrest\Application::ACTION_SWAGGER
-        ), 
+        ),
     ],
 ];
 ```
-Now call [http://localhost/your/path/to/swagger](http://localhost/your/path/to/swagger) to see your swagger definitions. Ready to use with [Swagger UI](https://github.com/swagger-api/swagger-ui). 
-#### Error codes
+
+\Phrest\Application constant | Description
+---|---
+ACTION_SWAGGER | Provides the swagger file in json format.
+ACTION_ERROR_CODES | Provides all possible error codes in json format. See [Error Codes](#error-codes).
+
+## Routing
+
+## Abstract actions
+
+## Logging
+
+## HATEOAS response generator
+
+## Request swagger validator
+
+## Error codes
 You can use the phrest error codes action to publish your error codes for your API consumers.
 ```php
 <?php
@@ -222,8 +175,8 @@ return [
 ];
 ```
 Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) to see your error codes. 
-##### Using your own error codes
-You can tell phrest what error codes class to use. Just provide a service named \Phrest\Application::CONFIG_ERROR_CODES. Phrest uses error codes from 0 to 1000. To avoid conflicts you should use LAST_PHREST_ERROR_CODE as base for your own error codes. 
+### Using your own error codes
+You can tell phrest what error codes class to use. Just provide a service named ```\Phrest\Application::CONFIG_ERROR_CODES```. Phrest uses error codes from 0 to 1000. To avoid conflicts you should use LAST_PHREST_ERROR_CODE as base for your own error codes. 
 ```php
 <?php
 namespace Application;
@@ -237,11 +190,11 @@ class ErrorCodes extends \Phrest\API\ErrorCodes
 <?php
 // your configuration file
 return [
+    \Phrest\Application::CONFIG_ERROR_CODES => \Application\ErrorCodes::class,
+    
     \Phrest\Application::CONFIG_DEPENDENCIES => [
-        'factories' => [
-            \Phrest\Application::CONFIG_ERROR_CODES => function () {
-                return new \Application\ErrorCodes();
-            },
+        'invokables' => [
+            \Application\ErrorCodes::class => \Application\ErrorCodes::class,
         ]
     ],
 ];
