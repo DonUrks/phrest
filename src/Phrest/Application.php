@@ -54,6 +54,7 @@ class Application
         $monologProcessor = $userConfig[\Phrest\Application::CONFIG_MONOLOG_PROCESSOR] ?? [];
 
         $router = $userConfig[\Phrest\Application::CONFIG_ROUTER] ?? null;
+        $errorCodes = $userConfig[\Phrest\Application::CONFIG_ERROR_CODES] ?? null;
 
         $cache = self::createCache($enableCache, $cacheDirectory);
 
@@ -118,13 +119,13 @@ class Application
                             return new \Phrest\API\Action\Swagger($container->get(\Phrest\Application::SERVICE_SWAGGER));
                         },
 
-                        \Phrest\Application::ACTION_ERROR_CODES => function (\Interop\Container\ContainerInterface $container) use ($cache) {
-                            if ($container->has(\Phrest\Application::CONFIG_ERROR_CODES)) {
-                                $errorCodes = $container->get(\Phrest\Application::CONFIG_ERROR_CODES);
+                        \Phrest\Application::ACTION_ERROR_CODES => function (\Interop\Container\ContainerInterface $container) use ($cache, $errorCodes) {
+                            if ($errorCodes) {
+                                $errorCodesInstance = $container->get($errorCodes);
                             } else {
-                                $errorCodes = new API\ErrorCodes();
+                                $errorCodesInstance = new API\ErrorCodes();
                             }
-                            return new \Phrest\API\Action\ErrorCodes($cache, $errorCodes);
+                            return new \Phrest\API\Action\ErrorCodes($cache, $errorCodesInstance);
                         },
 
                         \Phrest\Application::SERVICE_HATEOAS_RESPONSE_GENERATOR => function (\Interop\Container\ContainerInterface $container) {
