@@ -75,6 +75,12 @@ class RequestSwaggerValidator
         $this->validator = $validator;
     }
 
+    /**
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param string $operationId
+     * @return RequestSwaggerData
+     * @throws \Phrest\Http\Exception
+     */
     public function validate(\Psr\Http\Message\ServerRequestInterface $request, string $operationId): RequestSwaggerData
     {
         $parameters = $this->swagger->getParameters($operationId);
