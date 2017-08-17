@@ -130,12 +130,12 @@ return [
 
 \Phrest\Application constant | Interface | Description
 ---|---|---
-SERVICE_LOGGER | \Psr\Log\LoggerInterface | Writes log entries to all registered ```\Phrest\Application::CONFIG_MONOLOG_HANDLER```
-SERVICE_ROUTER | \Zend\Expressive\Router\RouterInterface | The router used to determine the action.
-SERVICE_SWAGGER | \Phrest\Swagger | The phrest swagger abstraction.
-SERVICE_HATEOAS | \Hateoas\Hateoas | The HATEOAS serializer / deserializer.
-SERVICE_HATEOAS_RESPONSE_GENERATOR | \Phrest\API\HateoasResponseGenerator | Can be used to generate json response with the help of willdurand/Hateoas. See [HATEOAS response generator](#hateoas-response-generator)
-SERVICE_REQUEST_SWAGGER_VALIDATOR | \Phrest\API\RequestSwaggerValidator | Can be used to validate request data against swagger schema. See [Request swagger validator](#request-swagger-validator)   
+SERVICE_LOGGER | ```\Psr\Log\LoggerInterface``` | Writes log entries to all registered ```\Phrest\Application::CONFIG_MONOLOG_HANDLER```
+SERVICE_ROUTER | ```\Zend\Expressive\Router\RouterInterface``` | The router used to determine the action.
+SERVICE_SWAGGER | ```\Phrest\Swagger``` | The phrest swagger abstraction.
+SERVICE_HATEOAS | ```\Hateoas\Hateoas``` | The HATEOAS serializer / deserializer.
+SERVICE_HATEOAS_RESPONSE_GENERATOR | ```\Phrest\API\HateoasResponseGenerator``` | Can be used to generate json response with the help of willdurand/Hateoas. See [HATEOAS response generator](#hateoas-response-generator)
+SERVICE_REQUEST_SWAGGER_VALIDATOR | ```\Phrest\API\RequestSwaggerValidator``` | Can be used to validate request data against swagger schema. See [Request swagger validator](#request-swagger-validator)   
 
 ### Actions
 Phrest provides several actions for you. You can use them by simple bound them to paths.
@@ -188,9 +188,9 @@ If phrest receives an request with a method not provided by your action, phrest 
 
 Method | Parameter | Return type | Description
 ---|---|---|---
-get / put / post / patch | \Psr\Http\Message\ServerRequestInterface | \Psr\Http\Message\ResponseInterface | -
-delete | \Psr\Http\Message\ServerRequestInterface | \Psr\Http\Message\ResponseInterface or null | If your delete method returns null, phrest will generate an empty response with http status code 204.
-options | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
+```get``` ```put``` ```post``` ```patch``` | ```\Psr\Http\Message\ServerRequestInterface``` | ```\Psr\Http\Message\ResponseInterface``` | -
+```delete``` | ```\Psr\Http\Message\ServerRequestInterface``` | ```\Psr\Http\Message\ResponseInterface``` or ```null``` | If your ```delete``` method returns ```null```, phrest will generate an empty response with http status code 204.
+```options``` | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
 ```php
 <?php
@@ -216,9 +216,9 @@ If phrest receives an request with a method not provided by your action, phrest 
 
 Method | Parameter | Return type | Description
 ---|---|---|---
-get / put / post / patch | \Phrest\API\RequestSwaggerData | \Psr\Http\Message\ResponseInterface | -
-delete | \Phrest\API\RequestSwaggerData | \Psr\Http\Message\ResponseInterface or null | If your delete method returns null, phrest will generate an empty response with http status code 204.
-options | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
+```get``` ```put``` ```post``` ```patch``` | ```\Phrest\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` | -
+```delete``` | ```\Phrest\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` or ```null``` | If your delete method returns ```null```, phrest will generate an empty response with http status code 204.
+```options``` | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
 Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters.
 
@@ -322,10 +322,10 @@ The ```\Phrest\API\RequestSwaggerData``` object contains all parameters validate
 
 Method | Description | Request example | Value
 ---|---|---|---
-getBodyValue() | Returns the parsed json object. | {"name": "Batman"} | {stdClass json object}
-getQueryValues() | Returns all query params as key value pairs. | your-url?var1=value1 | ['var1' => 'value1']
-getPathValues() | Returns all path params as key value pairs. | your-url/somePath/{pathVar} | ['pathVar' => '{value}']
-getHeaderValues() |Returns all header params as key value pairs. | SOME_HEADER=some-value | ['SOME_HEADER' => 'some-value']
+```getBodyValue()``` | Returns the parsed json object. | {"name": "Batman"} | {stdClass json object}
+```getQueryValues()``` | Returns all query params as key value pairs. | your-url?var1=value1 | ['var1' => 'value1']
+```getPathValues()``` | Returns all path params as key value pairs. | your-url/somePath/{pathVar} | ['pathVar' => '{value}']
+```getHeaderValues()``` |Returns all header params as key value pairs. | SOME_HEADER=some-value | ['SOME_HEADER' => 'some-value']
 
 For swagger-php details see [zircote/swagger-php](https://github.com/zircote/swagger-php).
 
