@@ -39,11 +39,11 @@ composer create-project donurks/phrest-skeleton
 Name | Type | Default | Description
 ---|:---:|:---:|---
 applicationName | string | phrest-application | The name of your application. Used for Logging.
-configDirectoryPattern | string | config/{{,*.}global,{,*.}local}.php | The glob pattern used for loading and merging your config files.
+configDirectoryPattern | string | ```config/{{,*.}global,{,*.}local}.php``` | The glob pattern used for loading and merging your config files.
 request | \Psr\Http\Message\ServerRequestInterface | ServerRequestFactory::fromGlobals() | If you want to provide your own request object instead of using the global variables. Useful for unit testing.
 
 ## Configuration
-By default phrest will look at your config/ directory and will load and merge all config files in the following order:
+By default phrest will look at your ```config/``` directory and will load and merge all config files in the following order:
 - global.php
 - *.global.php
 - local.php
