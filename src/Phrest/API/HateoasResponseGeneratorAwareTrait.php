@@ -16,12 +16,13 @@ trait HateoasResponseGeneratorAwareTrait
     }
 
     /**
-     * Generates a JSON HATEOAS response based on the given data and annotations.
      * @param $data
+     * @param int $httpStatusCode
+     * @param array $headers
      * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function generateHateoasResponse($data): \Psr\Http\Message\ResponseInterface
+    protected function generateHateoasResponse($data, int $httpStatusCode = 200, array $headers = []): \Psr\Http\Message\ResponseInterface
     {
-        return $this->hateoasResponseGenerator->generate($data);
+        return $this->hateoasResponseGenerator->generate($data, $httpStatusCode, $headers);
     }
 }
