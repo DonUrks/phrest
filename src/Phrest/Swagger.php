@@ -2,17 +2,13 @@
 
 namespace Phrest;
 
-/**
- * @todo parameter location formData
- * @todo recursive to array conversion
- * @todo cache parameter preparation - all at once!?
- * @todo Paths can be a ref: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#pathsObject
- */
 class Swagger
 {
     const SCHEMA_ID = 'file://swagger';
 
     private const CACHE_SWAGGER = 'Phrest_Swagger';
+
+    private const CACHE_SWAGGER_OPERATION_PARAMETERS = 'Phrest_Swagger_Operation_Parameters';
 
     /**
      * @var \Zend\Cache\Storage\StorageInterface
@@ -29,6 +25,11 @@ class Swagger
      */
     private $swagger;
 
+    /**
+     * @var array
+     */
+    private $parametersByOperationId;
+
     public function __construct(\Zend\Cache\Storage\StorageInterface $cache, string $swaggerScanDirectory)
     {
         $this->cache = $cache;
@@ -42,6 +43,13 @@ class Swagger
 
         $this->schemaStorage = new \JsonSchema\SchemaStorage();
         $this->schemaStorage->addSchema(Swagger::SCHEMA_ID, json_decode($this->swagger));
+
+        if ($this->cache->hasItem(self::CACHE_SWAGGER_OPERATION_PARAMETERS)) {
+            $this->parametersByOperationId = unserialize($this->cache->getItem(self::CACHE_SWAGGER_OPERATION_PARAMETERS));
+        } else {
+            $this->parametersByOperationId = $this->extractParameters();
+            $this->cache->setItem(self::CACHE_SWAGGER_OPERATION_PARAMETERS, serialize($this->parametersByOperationId));
+        }
     }
 
     public function getSchemaStorage(): \JsonSchema\SchemaStorage
@@ -49,32 +57,55 @@ class Swagger
         return $this->schemaStorage;
     }
 
-    public function getParameters(string $route, string $method): Swagger\Parameters
+    private function extractParameters(): array
     {
-        // @todo: find a collision free method for cache key generation
-        $cacheKey = self::CACHE_SWAGGER . '_' . md5($method . '_' . $route);
-
-        if ($this->cache->hasItem($cacheKey)) {
-            return unserialize($this->cache->getItem($cacheKey));
-        }
-
         $paths = (array)$this->schemaStorage->resolveRef(self::SCHEMA_ID . '#/paths');
-        if (!array_key_exists($route, $paths)) {
-            throw new \Phrest\Exception('route "' . $route . '" not found in schema');
+
+        $rawParametersByOperationId = [];
+        foreach ($paths as $path => $pathItem) {
+            // @todo Paths can be a ref: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#pathsObject
+
+            $pathParameters = [];
+            // @todo path parameters can be a ref
+            if (property_exists($pathItem, 'parameters')) {
+                // parameters can be defined for all operations - parameter in operations will override them
+                $pathParameters = (array)($pathItem['parameters'] ?? []);
+            }
+
+            $operations = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch'];
+            foreach ($operations as $operationName) {
+                if (!property_exists($pathItem, $operationName)) {
+                    continue;
+                }
+                $operation = $pathItem->$operationName;
+
+                if (!property_exists($operation, 'operationId')) {
+                    throw new \Phrest\Exception('Swagger operation without operationId found (' . implode('::', [$path, $operationName]) . ').');
+                }
+                $operationId = $operation->operationId;
+
+                if (array_key_exists($operationId, $rawParametersByOperationId)) {
+                    throw new \Phrest\Exception('Swagger operationId duplicate found (' . implode('::', [$path, $operationName, $operationId]) . ').');
+                }
+
+                $parameters = [];
+                if (property_exists($operation, 'parameters')) {
+                    $parameters = (array)$operation->parameters;
+                }
+                $rawParametersByOperationId[$operationId] = array_merge($pathParameters, $parameters);
+            }
         }
 
-        $path = (array)$paths[$route];
-        if (!array_key_exists($method, $path)) {
-            throw new \Phrest\Exception('method "' . $method . '" for route "' . $route . '" not found in schema');
+        $parametersByOperationId = [];
+        foreach ($rawParametersByOperationId as $operationId => $parameters) {
+            $parametersByOperationId[$operationId] = $this->extractParametersFromRawParameters($parameters);
         }
 
-        $method = (array)$path[$method];
+        return $parametersByOperationId;
+    }
 
-        // parameters can be defined for all operations - parameter in operations will override them
-        $parameters = (array)($path['parameters'] ?? []);
-        $parameters = array_merge($parameters, (array)($method['parameters'] ?? []));
-
-        // prepare parameters
+    private function extractParametersFromRawParameters(array $parameters): Swagger\Parameters
+    {
         $bodyParameter = [];
         $queryParameters = [];
         $headerParameters = [];
@@ -103,16 +134,20 @@ class Swagger
                     $pathParameters[$parameter['name']] = $parameter;
                     break;
                 case 'formData':
+                    // @todo implement formData validation
                     throw new \Phrest\Exception('swagger parameter location "formData" not yet implemented');
                     break;
             }
         }
+        return new Swagger\Parameters($bodyParameter, $queryParameters, $headerParameters, $pathParameters);
+    }
 
-        $swaggerParameters = new Swagger\Parameters($bodyParameter, $queryParameters, $headerParameters, $pathParameters);
-
-        $this->cache->setItem($cacheKey, serialize($swaggerParameters));
-
-        return $swaggerParameters;
+    public function getParameters(string $operationId): Swagger\Parameters
+    {
+        if(!array_key_exists($operationId, $this->parametersByOperationId)) {
+            throw new \Phrest\Exception('OperationId "'.$operationId.'" not found in swagger.');
+        }
+        return $this->parametersByOperationId[$operationId];
     }
 
     public function __toString(): string

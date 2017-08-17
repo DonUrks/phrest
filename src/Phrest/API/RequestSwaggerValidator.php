@@ -75,31 +75,39 @@ class RequestSwaggerValidator
         $this->validator = $validator;
     }
 
-    public function validate(\Psr\Http\Message\ServerRequestInterface $request, string $method, string $route): RequestSwaggerData
+    public function validate(\Psr\Http\Message\ServerRequestInterface $request, string $operationId): RequestSwaggerData
     {
-        $parameters = $this->swagger->getParameters($route, $method);
+        $parameters = $this->swagger->getParameters($operationId);
+
+        // @todo own required validation - json-schema throws type error (NULL != string, number, ...)
 
         $errors = [];
 
         // validate query parameters
         $queryValues = [];
         foreach ($parameters->getQueryParameters() as $parameterName => $parameter) {
+            $required = $parameter['required'] ?? false;
             $value = $request->getQueryParams()[$parameterName] ?? ($parameter['default'] ?? null);
-            $errors = array_merge(
-                $errors,
-                $this->validateValueBySchema($value, $parameter, '{query}/' . $parameterName)
-            );
+            if(!is_null($value) || $required) {
+                $errors = array_merge(
+                    $errors,
+                    $this->validateValueBySchema($value, $parameter, '{query}/' . $parameterName)
+                );
+            }
             $queryValues[$parameterName] = $value;
         }
 
         // validate header parameters
         $headerValues = [];
         foreach ($parameters->getHeaderParameters() as $parameterName => $parameter) {
+            $required = $parameter['required'] ?? false;
             $value = $request->getHeader($parameterName)[0] ?? ($parameter['default'] ?? null);
-            $errors = array_merge(
-                $errors,
-                $this->validateValueBySchema($value, $parameter, '{header}/' . $parameterName)
-            );
+            if(!is_null($value) || $required) {
+                $errors = array_merge(
+                    $errors,
+                    $this->validateValueBySchema($value, $parameter, '{header}/' . $parameterName)
+                );
+            }
             $headerValues[$parameterName] = $value;
         }
 
@@ -131,7 +139,7 @@ class RequestSwaggerValidator
             throw \Phrest\Http\Exception::BadRequest(
                 new \Phrest\API\Error(
                     \Phrest\API\ErrorCodes::REQUEST_PARAMETER_VALIDATION,
-                    'request parameter validation failed',
+                    'request parameter validation failed. OperationId: '.$operationId,
                     ...$errors
                 )
             );
