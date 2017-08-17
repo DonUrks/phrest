@@ -37,7 +37,7 @@ composer create-project donurks/phrest-skeleton
 
 ## \Phrest\Application::run parameters
 Name | Type | Default | Description
----|:---:|:---:|---
+---|---|---|---
 applicationName | string | phrest-application | The name of your application. Used for Logging.
 configDirectoryPattern | string | ```config/{{,*.}global,{,*.}local}.php``` | The glob pattern used for loading and merging your config files.
 request | \Psr\Http\Message\ServerRequestInterface | ServerRequestFactory::fromGlobals() | If you want to provide your own request object instead of using the global variables. Useful for unit testing.
@@ -75,7 +75,7 @@ return [
 ```
 
 \Phrest\Application constant | Type | Description
----|:---:|---
+---|---|---
 CONFIG_ENABLE_CACHE | boolean | If true, phrest will cache swagger, HATEOAS and configurations. If true ```CONFIG_CACHE_DIRECTORY``` is **required**! 
 CONFIG_CACHE_DIRECTORY | string | The directory where phrest will cache. Make sure this directory is phrest exclusive to avoid conflicts (```cache/phrest/``` is a good choice).
 CONFIG_SWAGGER_SCAN_DIRECTORY | string | Tells phrest where to look for your swagger annotations. Usually this is your ```src/``` directory.
@@ -127,7 +127,7 @@ return [
 ``` 
 
 \Phrest\Application constant | Interface | Description
----|:---:|---
+---|---|---
 SERVICE_LOGGER | \Psr\Log\LoggerInterface | Writes log entries to all registered ```CONFIG_MONOLOG_HANDLER```
 SERVICE_ROUTER | \Zend\Expressive\Router\RouterInterface | The router used to determine the action.
 SERVICE_SWAGGER | \Phrest\Swagger | The phrest swagger abstraction.
@@ -157,14 +157,124 @@ ACTION_SWAGGER | Provides the swagger file in json format.
 ACTION_ERROR_CODES | Provides all possible error codes in json format. See [Error Codes](#error-codes).
 
 ## Routing
+A route is connection between a path and an action. Use the ```CONFIG_ROUTES``` configuration to add routes.
+There is also a static method ```\Phrest\Application::createRoute()``` which creates a route entry.
+
+The array keys are used to name the route. The route names are used in [Request swagger validator](#request-swagger-validator) as swagger operationId and in the [HATEOAS response generator](#hateoas-response-generator) for link generation.
+
+```php
+<?php
+// your config file
+return [
+    \Phrest\Application::CONFIG_ROUTES => [
+        'the-name-of-your-route' => \Phrest\Application::createRoute(
+            '/the-path-of-your-route', 
+            \YourAction::class
+        ),
+    ],
+];
+```
 
 ## Abstract actions
+You can write your own actions by implementing the ```\Interop\Http\ServerMiddleware\MiddlewareInterface```. Or you can use the abstract actions provided by phrest.
 
-## Logging
+### Phrest\API\AbstractAction
+Use this abstract action if you just want to map the HTTP methods to action methods. 
+
+Extend the ```\Phrest\API\AbstractAction``` class and overwrite the methods as needed.
+If phrest receives an request with a method not provided by your action, phrest will handle the error response automatically.
+
+Method | Parameter | Return type | Description
+---|---|---|---
+get / put / post / patch | \Psr\Http\Message\ServerRequestInterface | \Psr\Http\Message\ResponseInterface | -
+delete | \Psr\Http\Message\ServerRequestInterface | \Psr\Http\Message\ResponseInterface or null | If your delete method returns null, phrest will generate an empty response with http status code 204.
+options | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
+
+```php
+<?php
+class Test extends \Phrest\API\AbstractAction
+{
+    public function get(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    {
+        return new \Zend\Diactoros\Response\JsonResponse(['name' => 'some name']);
+    }
+}
+```
+
+### Phrest\API\AbstractSwaggerValidatorAction
+Use this abstract action if you want phrest to validate your request based on swagger annotations. 
+
+Phrest will use the current route name to validate all request parameters defined in your swagger annotations. 
+The route name must match with the swagger operationId.
+
+If validation failed, phrest will handle the error response automatically.
+
+Extend the ```\Phrest\API\AbstractSwaggerValidatorAction``` class and overwrite the methods as needed.
+If phrest receives an request with a method not provided by your action, phrest will handle the error response automatically.
+
+Method | Parameter | Return type | Description
+---|---|---|---
+get / put / post / patch | \Phrest\API\RequestSwaggerData | \Psr\Http\Message\ResponseInterface | -
+delete | \Phrest\API\RequestSwaggerData | \Psr\Http\Message\ResponseInterface or null | If your delete method returns null, phrest will generate an empty response with http status code 204.
+options | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
+
+Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters (see [Request swagger validator](#request-swagger-validator)).
+
+```php
+<?php
+// your config file
+return [
+    \Phrest\Application::CONFIG_ROUTES => [
+        // The route name "someRouteName" matches operationId in the swagger annotations
+        'someRouteName' => \Phrest\Application::createRoute(
+            '/some-path', 
+            \SomeAction::class
+        ),
+    ],
+];
+```
+
+```php
+<?php
+// your action
+class SomeAction extends \Phrest\API\AbstractSwaggerValidatorAction
+{
+    /**
+     * @SWG\Get(
+     *     path="/some-path",
+     *     operationId="someRouteName",
+     *     @SWG\Parameter(
+     *          name="id",
+     *          in="query",
+     *          type="number"
+     *     ),
+     *     @SWG\Response(response="200", description="Success")
+     * )
+     *
+     * @param \Phrest\API\RequestSwaggerData $data
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function get(\Phrest\API\RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
+    {
+        return new \Zend\Diactoros\Response\JsonResponse(
+            ['id' => $data->getQueryValues()['id']]
+        );
+    }
+}
+```
 
 ## HATEOAS response generator
 
 ## Request swagger validator
+Method | Description
+---|---
+getBodyValue() | Returns the parsed json object.
+getQueryValues() | Returns the parsed json object.
+getPathValues() | Returns the parsed json object.
+getHeaderValues() | Returns the parsed json object.
+
+
+## Logging
 
 ## Exceptions
 
