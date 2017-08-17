@@ -190,7 +190,7 @@ Method | Parameter | Return type | Description
 ---|---|---|---
 ```get``` ```put``` ```post``` ```patch``` | ```\Psr\Http\Message\ServerRequestInterface``` | ```\Psr\Http\Message\ResponseInterface``` | -
 ```delete``` | ```\Psr\Http\Message\ServerRequestInterface``` | ```\Psr\Http\Message\ResponseInterface``` or ```null``` | If your ```delete``` method returns ```null```, phrest will generate an empty response with http status code 204.
-```options``` | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
+```options``` | - | - | You can't overwrite the ```options``` method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
 ```php
 <?php
@@ -218,7 +218,7 @@ Method | Parameter | Return type | Description
 ---|---|---|---
 ```get``` ```put``` ```post``` ```patch``` | ```\Phrest\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` | -
 ```delete``` | ```\Phrest\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` or ```null``` | If your delete method returns ```null```, phrest will generate an empty response with http status code 204.
-```options``` | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
+```options``` | - | - | You can't overwrite the ```options``` method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
 Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters.
 
