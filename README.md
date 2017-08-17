@@ -14,6 +14,8 @@ A php framework for your RESTful API with JSON and Swagger support. Phrest will 
 
 ## Requirements
 - PHP 7.1
+- Understanding zircote/swagger-php annotations
+- Understanding willdurand/Hateoas annotations
 
 ## Installation (with [Composer](https://getcomposer.org))
 ### Command line
@@ -128,7 +130,7 @@ return [
 
 \Phrest\Application constant | Interface | Description
 ---|---|---
-SERVICE_LOGGER | \Psr\Log\LoggerInterface | Writes log entries to all registered ```CONFIG_MONOLOG_HANDLER```
+SERVICE_LOGGER | \Psr\Log\LoggerInterface | Writes log entries to all registered ```\Phrest\Application::CONFIG_MONOLOG_HANDLER```
 SERVICE_ROUTER | \Zend\Expressive\Router\RouterInterface | The router used to determine the action.
 SERVICE_SWAGGER | \Phrest\Swagger | The phrest swagger abstraction.
 SERVICE_HATEOAS | \Hateoas\Hateoas | The HATEOAS serializer / deserializer.
@@ -157,7 +159,7 @@ ACTION_SWAGGER | Provides the swagger file in json format.
 ACTION_ERROR_CODES | Provides all possible error codes in json format. See [Error Codes](#error-codes).
 
 ## Routing
-A route is connection between a path and an action. Use the ```CONFIG_ROUTES``` configuration to add routes.
+A route is connection between a path and an action. Use the ```\Phrest\Application::CONFIG_ROUTES``` configuration to add routes.
 There is also a static method ```\Phrest\Application::createRoute()``` which creates a route entry.
 
 The array keys are used to name the route. The route names are used in [Request swagger validator](#request-swagger-validator) as swagger operationId and in the [HATEOAS response generator](#hateoas-response-generator) for link generation.
@@ -218,7 +220,9 @@ get / put / post / patch | \Phrest\API\RequestSwaggerData | \Psr\Http\Message\Re
 delete | \Phrest\API\RequestSwaggerData | \Psr\Http\Message\ResponseInterface or null | If your delete method returns null, phrest will generate an empty response with http status code 204.
 options | - | - | You can't overwrite the options method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
-Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters (see [Request swagger validator](#request-swagger-validator)).
+Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters.
+
+See [Request swagger validator](#request-swagger-validator) for details.
 
 ```php
 <?php
@@ -263,20 +267,272 @@ class SomeAction extends \Phrest\API\AbstractSwaggerValidatorAction
 }
 ```
 
-## HATEOAS response generator
-
 ## Request swagger validator
-Method | Description
----|---
-getBodyValue() | Returns the parsed json object.
-getQueryValues() | Returns the parsed json object.
-getPathValues() | Returns the parsed json object.
-getHeaderValues() | Returns the parsed json object.
+You can use the request swagger validator to validate your requuest parameters against your swagger operations. 
+Just provide your request object and swagger operationId. 
+Phrest will use all parameter definitions provided in the operation linked by the operation Id. 
 
+You can use the service ```\Phrest\Application::SERVICE_REQUEST_SWAGGER_VALIDATOR``` to inject the request swagger validator to your classes.
+
+```php
+<?php
+// your config file
+return [
+    \Phrest\Application::CONFIG_DEPENDENCIES => [
+        'factories' => [
+            \SomeAction::class => function (\Interop\Container\ContainerInterface $container) {
+                return new \SomeAction(
+                    $container->get(\Phrest\Application::SERVICE_REQUEST_SWAGGER_VALIDATOR)
+                );
+            },
+        ]
+    ],
+];
+```
+
+You can also implement the ```\Phrest\API\RequestSwaggerValidatorAwareInterface``` and use the ```\Phrest\API\RequestSwaggerValidatorAwareTrait```.
+Phrest will automatically inject the request swagger validator to your class und populate a ```requestSwaggerValidator``` property.
+
+```php
+<?php
+// your action
+class SomeAction extends \Phrest\API\AbstractAction
+    implements \Phrest\API\RequestSwaggerValidatorAwareInterface
+{
+    use \Phrest\API\RequestSwaggerValidatorAwareTrait;
+    
+    public function get(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    {
+        $data = $this->requestSwaggerValidator->validate($request, 'someOperationId');
+        return new \Zend\Diactoros\Response\EmptyResponse();
+    }
+}
+```
+
+Or just use the [Phrest\API\AbstractSwaggerValidatorAction](#phrest\api\abstractswaggervalidatoraction) and phrest will take care of fetching the right operationId.
+
+The validate method takes two parameters: the request object and the operationId.
+
+Phrest will look in your swagger for the given operationId. If there is no operation for this id, phrest will throw an ```\Phrest\Exception``` resulting in a http status 500 response if not catched.
+If the validation failed, phrest will throw an ```\Phrest\Http\Exception``` resulting in a http status 400 response with error model if not catched.
+
+If validation succeed, the validate method will return an ```\Phrest\API\RequestSwaggerData``` object.
+
+The ```\Phrest\API\RequestSwaggerData``` object contains all parameters validated, filled with default values as needed and correct data types.
+
+Method | Description | Request example | Value
+---|---|---|---
+getBodyValue() | Returns the parsed json object. | {"name": "Batman"} | {stdClass json object}
+getQueryValues() | Returns all query params as key value pairs. | your-url?var1=value1 | ['var1' => 'value1']
+getPathValues() | Returns all path params as key value pairs. | your-url/somePath/{pathVar} | ['pathVar' => '{value}']
+getHeaderValues() |Returns all header params as key value pairs. | SOME_HEADER=some-value | ['SOME_HEADER' => 'some-value']
+
+For swagger-php details see [zircote/swagger-php](https://github.com/zircote/swagger-php).
+
+For swagger details see [OpenAPI Spec 2.0](https://github.com/OAI/OpenAPI-Specification/blob/3.0.0/versions/2.0.md). 
+
+## HATEOAS response generator
+The HATEOAS response generator will generate a JSON response from your objects with the help of annotations ([willdurand/Hateoas](https://github.com/willdurand/Hateoas)).
+
+You can use the service ```\Phrest\Application::SERVICE_HATEOAS_RESPONSE_GENERATOR``` to inject the hateoas response generator to your classes.
+
+```php
+<?php
+// your config file
+return [
+    \Phrest\Application::CONFIG_DEPENDENCIES => [
+        'factories' => [
+            \SomeAction::class => function (\Interop\Container\ContainerInterface $container) {
+                return new \SomeAction(
+                    $container->get(\Phrest\Application::SERVICE_HATEOAS_RESPONSE_GENERATOR)
+                );
+            },
+        ]
+    ],
+];
+```
+
+You can also implement the ```\Phrest\API\HateoasResponseGeneratorAwareInterface``` and use the ```\Phrest\API\HateoasResponseGeneratorAwareTrait```.
+Phrest will automatically inject the response generator to your class und populate a ```generateHateoasResponse``` method.
+
+```php
+<?php
+// your action
+class SomeAction extends \Phrest\API\AbstractAction
+    implements \Phrest\API\HateoasResponseGeneratorAwareInterface
+{
+    use \Phrest\API\HateoasResponseGeneratorAwareTrait;
+    
+    public function get(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    {
+        $user = new User(
+            453, 
+            'Bruce',
+            'Wayne'
+        );
+        return $this->generateHateoasResponse($user);
+    }
+}
+```
+
+The ```generateHateoasResponse``` method takes your object and optionally a http status code and a headers array.
+
+You can use the HATEOAS route in relation annotations to generate links. Just pass the name of the route (see [Routing](#routing)). You can also pass named path parameters for url generation.
+
+```php
+<?php
+// your config file
+return [
+    \Phrest\Application::CONFIG_ROUTES => [
+        'your-route' => \Phrest\Application::createRoute(
+            '/users/{userId}', 
+            \YourAction::class
+        ),
+    ],
+];
+```
+
+```php
+<?php
+/**
+ * @Hateoas\Configuration\Annotation\Relation(
+ *      "self",
+ *      href = @Hateoas\Configuration\Annotation\Route(
+ *          "your-route",
+ *          parameters = { "userId" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ */
+class User
+{
+    private $id;
+    private $first_name;
+    private $last_name;
+
+    public function __construct($id, $first_name, $last_name)
+    {
+        $this->id = $id;
+        $this->first_name = $first_name;
+        $this->last_name = $last_name;
+    }
+
+    public function getId() {
+        return $this->id;
+    }
+}
+```
+
+The resulting output should now look like this:
+```json
+{
+  "id": 453,
+  "first_name": "Bruce",
+  "last_name": "Wayne",
+  "_links": {
+    "self": {
+      "href": "http://localhost/users/453"
+    }
+  }
+}
+```
+
+For willdurand/Hateoas details see [willdurand/Hateoas](https://github.com/willdurand/Hateoas). 
 
 ## Logging
+You can use the service ```\Phrest\Application::SERVICE_LOGGER``` to inject the logger to your classes.
+
+```php
+<?php
+// your config file
+return [
+    \Phrest\Application::CONFIG_DEPENDENCIES => [
+        'factories' => [
+            \SomeAction::class => function (\Interop\Container\ContainerInterface $container) {
+                return new \SomeAction(
+                    $container->get(\Phrest\Application::SERVICE_LOGGER)
+                );
+            },
+        ]
+    ],
+];
+```
+
+You can also implement the ```\Psr\Log\LoggerAwareInterface``` and use the ```\Psr\Log\LoggerAwareTrait```.
+Phrest will automatically inject the logger to your class und populate a ```logger``` property.
+
+```php
+<?php
+// your action
+class SomeAction extends \Phrest\API\AbstractAction
+    implements \Psr\Log\LoggerAwareInterface
+{
+    use \Psr\Log\LoggerAwareTrait;
+    
+    public function get(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    {
+        $this->logger->info('a log message');
+        return new \Zend\Diactoros\Response\EmptyResponse();
+    }
+}
+```
+
+For handler and processor details see [Monolog](https://github.com/Seldaek/monolog).
 
 ## Exceptions
+Phrest will generate a response with http status code 500 for every unhandled exception.
+
+Except for the ```\Phrest\Http\Exception```. If not catched, phrest will generate a response with correct http status code and error model body.
+
+Every ```\Phrest\Http\Exception``` needs a http status code and an error model with error entries.
+
+The error codes on ```\Phrest\API\Error``` and ```\Phrest\API\ErrorEntry``` should be used from ```\Phrest\API\ErrorCodes``` or your own error codes class (see [Error Codes](#error-codes)).
+
+```php
+<?php
+// all alone
+throw new \Phrest\Http\Exception(
+    400,
+    new \Phrest\API\Error(
+        1,
+        'Request parameter validation error',
+        new \Phrest\API\ErrorEntry(
+            2,
+            '{query}/id',
+            'Value must be a number, string given',
+            'is_number'
+        )
+    )
+);
+
+// with short hand method
+throw \Phrest\Http\Exception::Unauthorized(
+    new \Phrest\API\Error(
+        1,
+        'Request parameter validation error',
+        new \Phrest\API\ErrorEntry(
+            2,
+            '{query}/id',
+            'Value must be a number, string given',
+            'is_number'
+        )
+    )
+);
+
+// with error codes class
+throw \Phrest\Http\Exception::Unauthorized(
+    new \Phrest\API\Error(
+        \Phrest\API\ErrorCodes::REQUEST_PARAMETER_VALIDATION,
+        'Request parameter validation error',
+        new \Phrest\API\ErrorEntry(
+            \Phrest\API\ErrorCodes::REQUEST_VALIDATION_TYPE,
+            '{query}/id',
+            'Value must be a number, string given',
+            'is_number'
+        )
+    )
+);
+```
 
 ## Error codes
 You can use the phrest error codes action to publish your error codes for your API consumers.
@@ -293,6 +549,7 @@ return [
 ];
 ```
 Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) to see your error codes. 
+
 ### Using your own error codes
 You can tell phrest what error codes class to use. Just register your ErrorCodes class under ```\Phrest\Application::CONFIG_ERROR_CODES```. Phrest uses error codes from 0 to 1000. To avoid conflicts you should use ```LAST_PHREST_ERROR_CODE``` as base for your own error codes. 
 ```php
