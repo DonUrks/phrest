@@ -10,7 +10,10 @@ abstract class AbstractAction implements
 
     protected function onRESTRequest(\Psr\Http\Message\ServerRequestInterface $request, string $method): \Psr\Http\Message\ResponseInterface
     {
-        return call_user_func_array([$this, $method], [$request]);
+        $response = call_user_func_array([$this, $method], [$request]);
+
+        // if there is no response -> its a delete request without returning a response (=204 No Content)
+        return $response ?? new \Zend\Diactoros\Response\EmptyResponse();
     }
 
     public function get(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface

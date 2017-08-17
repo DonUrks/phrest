@@ -23,7 +23,11 @@ abstract class AbstractSwaggerValidatorAction implements
         }
 
         $data = $this->requestSwaggerValidator->validate($request, $route->getName());
-        return call_user_func_array([$this, $method], [$data]);
+
+        $response = call_user_func_array([$this, $method], [$data]);
+
+        // if there is no response -> its a delete request without returning a response (=204 No Content)
+        return $response ?? new \Zend\Diactoros\Response\EmptyResponse();
     }
 
     public function get(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
@@ -46,7 +50,7 @@ abstract class AbstractSwaggerValidatorAction implements
         $this->throwMethodNotAllowed('PATCH');
     }
 
-    public function delete(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
+    public function delete(RequestSwaggerData $data): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('DELETE');
     }
