@@ -80,8 +80,9 @@ class Swagger
                 $operation = $pathItem->$operationName;
 
                 if (!property_exists($operation, 'operationId')) {
-                    throw new \Phrest\Exception('Swagger operation without operationId found (' . implode('::', [$path, $operationName]) . ').');
+                    continue;
                 }
+
                 $operationId = $operation->operationId;
 
                 if (array_key_exists($operationId, $rawParametersByOperationId)) {
