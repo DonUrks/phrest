@@ -162,7 +162,9 @@ return [
 A route is connection between a path and an action. Use the ```\Phrest\Application::CONFIG_ROUTES``` configuration to add routes.
 There is also a static method ```\Phrest\Application::createRoute()``` which creates a route entry.
 
-The array keys are used to name the route. The route names are used in [Request swagger validator](#request-swagger-validator) as swagger operationId and in the [HATEOAS response generator](#hateoas-response-generator) for link generation.
+The array keys are used to name the route. The route names are used in the [HATEOAS response generator](#hateoas-response-generator) for link generation.
+
+You can also provide a mapping for operation ids (see [AbstractSwaggerValidatorAction](###phrest\api\abstractswaggervalidatoraction)). 
 
 ```php
 <?php
@@ -170,8 +172,14 @@ The array keys are used to name the route. The route names are used in [Request 
 return [
     \Phrest\Application::CONFIG_ROUTES => [
         'the-name-of-your-route' => \Phrest\Application::createRoute(
-            '/the-path-of-your-route', 
-            \YourAction::class
+            '/the-path-of-your-route',
+            
+            // Your action - must be refer to a service in your CONFIG_DEPENDENCIES
+            \YourAction::class,
+            [
+                // AbstractSwaggerValidatorAction will now use "someOperationId" instead of "get.the-name-of-your-route"
+                'get' => 'someOperationId'    
+            ]
         ),
     ],
 ];
@@ -205,8 +213,12 @@ class Test extends \Phrest\API\AbstractAction
 ### Phrest\API\AbstractSwaggerValidatorAction
 Use this abstract action if you want phrest to validate your request based on swagger annotations. 
 
-Phrest will use the current route name to validate all request parameters defined in your swagger annotations. 
-The route name must match with the swagger operationId.
+Phrest will use the current route name to validate all request parameters defined in your swagger annotations.
+By default, phrest will use as operationId the following pattern: "method.route-name" ("get.name-of-your-route").
+
+You can overwrite the operationIds for each method (see [Routing](#routing)).
+ 
+The operationId must match with the swagger operationId.
 
 If validation failed, phrest will handle the error response automatically.
 
@@ -218,9 +230,7 @@ Method | Parameter | Return type | Description
 ```get```, ```put```, ```post```, ```patch```, ```delete``` | ```\Psr\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` or null | If your method method returns ```null```, phrest will generate an empty response with http status code 204.
 ```options``` | - | - | You can't overwrite the ```options``` method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
-Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters.
-
-See [Request swagger validator](#request-swagger-validator) for details.
+Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters. See [Request swagger validator](#request-swagger-validator) for details.
 
 ```php
 <?php

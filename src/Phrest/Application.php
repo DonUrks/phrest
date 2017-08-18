@@ -229,8 +229,11 @@ class Application
 
     static private function registerRoutes(\Zend\Expressive\Application $app, array $routes)
     {
-        foreach ($routes as $name => $route) {
-            $app->route($route['path'], $route['action'], ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], $name);
+        foreach ($routes as $name => $routeConfig) {
+            $route = $app->route($routeConfig['path'], $routeConfig['action'], ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], $name);
+            $route->setOptions([
+                'operationIds' => $routeConfig['operationIds'] ?? []
+            ]);
         }
     }
 
@@ -255,11 +258,12 @@ class Application
         $app->pipe(new \Phrest\Middleware\NotFound());
     }
 
-    static public function createRoute(string $path, string $action): array
+    static public function createRoute(string $path, string $action, array $operationIds = []): array
     {
         return [
             'path' => $path,
-            'action' => $action
+            'action' => $action,
+            'operationIds' => $operationIds
         ];
     }
 }

@@ -22,7 +22,13 @@ abstract class AbstractSwaggerValidatorAction implements
             throw new \Phrest\Exception('no matched route found');
         }
 
-        $data = $this->requestSwaggerValidator->validate($request, $route->getName());
+        $operationId = $method.'.'.$route->getName();
+        $operationIds = $route->getOptions()['operationIds'] ?? [];
+        if(array_key_exists($method, $operationIds)) {
+            $operationId = $operationIds[$method];
+        }
+
+        $data = $this->requestSwaggerValidator->validate($request, $operationId);
 
         $response = call_user_func_array([$this, $method], [$data]);
 
