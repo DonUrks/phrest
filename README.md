@@ -40,9 +40,9 @@ composer create-project donurks/phrest-skeleton
 ## \Phrest\Application::run parameters
 Name | Type | Default | Description
 ---|---|---|---
-applicationName | string | phrest-application | The name of your application. Used for Logging.
-configDirectoryPattern | string | ```config/{{,*.}global,{,*.}local}.php``` | The glob pattern used for loading and merging your config files.
-request | \Psr\Http\Message\ServerRequestInterface | ServerRequestFactory::fromGlobals() | If you want to provide your own request object instead of using the global variables. Useful for unit testing.
+applicationName | ```string``` | phrest-application | The name of your application. Used for Logging.
+configDirectoryPattern | ```string``` | ```config/{{,*.}global,{,*.}local}.php``` | The glob pattern used for loading and merging your config files.
+request | ```\Psr\Http\Message\ServerRequestInterface``` | ```ServerRequestFactory::fromGlobals()``` | If you want to provide your own request object instead of using the global variables. Useful for unit testing.
 
 ## Configuration
 By default phrest will look at your ```config/``` directory and will load and merge all config files in the following order:
@@ -78,16 +78,16 @@ return [
 
 \Phrest\Application constant | Type | Description
 ---|---|---
-CONFIG_ENABLE_CACHE | boolean | If true, phrest will cache swagger, HATEOAS and configurations. If true ```CONFIG_CACHE_DIRECTORY``` is **required**! 
-CONFIG_CACHE_DIRECTORY | string | The directory where phrest will cache. Make sure this directory is phrest exclusive to avoid conflicts (```cache/phrest/``` is a good choice).
-CONFIG_SWAGGER_SCAN_DIRECTORY | string | Tells phrest where to look for your swagger annotations. Usually this is your ```src/``` directory.
-CONFIG_DEPENDENCIES | array | Phrest uses the [zend-servicemanager](https://zendframework.github.io/zend-servicemanager/). Place your zend-servicemanager config here.
-CONFIG_ROUTES | array['path' => string, 'action' => string] | Bring path and action together. Each action must be a string refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implement ```\Interop\Http\ServerMiddleware\MiddlewareInterface``` - or just use phrest [Abstract actions](#abstract-actions). See also [Routing](#routing).
-CONFIG_MONOLOG_HANDLER | string[] | You can register one or more Monolog handlers. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
-CONFIG_MONOLOG_PROCESSOR | string[] | You can register one or more Monolog processors. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
-CONFIG_ERROR_CODES | string | Tells phrest to use your error codes class. String must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must extends ```\Phrest\API\ErrorCodes```. See [Using your own error codes](#using-your-own-error-codes).
-CONFIG_PRE_ROUTING_MIDDLEWARE | string[] | Register your own middleware called before routing. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
-CONFIG_PRE_DISPATCHING_MIDDLEWARE | string[] | Register your own middleware called before dispatching the action. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
+```CONFIG_ENABLE_CACHE``` | ```boolean``` | If true, phrest will cache swagger, HATEOAS and configurations. If true ```CONFIG_CACHE_DIRECTORY``` is **required**! 
+```CONFIG_CACHE_DIRECTORY``` | ```string``` | The directory where phrest will cache. Make sure this directory is phrest exclusive to avoid conflicts (```cache/phrest/``` is a good choice).
+```CONFIG_SWAGGER_SCAN_DIRECTORY``` | ```string``` | Tells phrest where to look for your swagger annotations. Usually this is your ```src/``` directory.
+```CONFIG_DEPENDENCIES``` | ```array``` | Phrest uses the [zend-servicemanager](https://zendframework.github.io/zend-servicemanager/). Place your zend-servicemanager config here.
+```CONFIG_ROUTES``` | ```array['path' => string, 'action' => string]``` | Bring path and action together. Each action must be a string refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implement ```\Interop\Http\ServerMiddleware\MiddlewareInterface``` - or just use phrest [Abstract actions](#abstract-actions). See also [Routing](#routing).
+```CONFIG_MONOLOG_HANDLER``` | ```string[]``` | You can register one or more Monolog handlers. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
+```CONFIG_MONOLOG_PROCESSOR``` | ```string[]``` | You can register one or more Monolog processors. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```.
+```CONFIG_ERROR_CODES``` | ```string``` | Tells phrest to use your error codes class. String must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must extends ```\Phrest\API\ErrorCodes```. See [Using your own error codes](#using-your-own-error-codes).
+```CONFIG_PRE_ROUTING_MIDDLEWARE``` | ```string[]``` | Register your own middleware called before routing. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
+```CONFIG_PRE_DISPATCHING_MIDDLEWARE``` | ```string[]``` | Register your own middleware called before dispatching the action. Each string must refer to a service defined in ```CONFIG_DEPENDENCIES```. Must implements ```\Interop\Http\ServerMiddleware\MiddlewareInterface```.
 
 ### User config
 Your whole configuration is accessible in the container with the ```\Phrest\Application::USER_CONFIG``` constant.
@@ -130,12 +130,12 @@ return [
 
 \Phrest\Application constant | Interface | Description
 ---|---|---
-SERVICE_LOGGER | ```\Psr\Log\LoggerInterface``` | Writes log entries to all registered ```\Phrest\Application::CONFIG_MONOLOG_HANDLER```
-SERVICE_ROUTER | ```\Zend\Expressive\Router\RouterInterface``` | The router used to determine the action.
-SERVICE_SWAGGER | ```\Phrest\Swagger``` | The phrest swagger abstraction.
-SERVICE_HATEOAS | ```\Hateoas\Hateoas``` | The HATEOAS serializer / deserializer.
-SERVICE_HATEOAS_RESPONSE_GENERATOR | ```\Phrest\API\HateoasResponseGenerator``` | Can be used to generate json response with the help of willdurand/Hateoas. See [HATEOAS response generator](#hateoas-response-generator)
-SERVICE_REQUEST_SWAGGER_VALIDATOR | ```\Phrest\API\RequestSwaggerValidator``` | Can be used to validate request data against swagger schema. See [Request swagger validator](#request-swagger-validator)   
+```SERVICE_LOGGER``` | ```\Psr\Log\LoggerInterface``` | Writes log entries to all registered ```\Phrest\Application::CONFIG_MONOLOG_HANDLER```
+```SERVICE_ROUTER``` | ```\Zend\Expressive\Router\RouterInterface``` | The router used to determine the action.
+```SERVICE_SWAGGER``` | ```\Phrest\Swagger``` | The phrest swagger abstraction.
+```SERVICE_HATEOAS``` | ```\Hateoas\Hateoas``` | The HATEOAS serializer / deserializer.
+```SERVICE_HATEOAS_RESPONSE_GENERATOR``` | ```\Phrest\API\HateoasResponseGenerator``` | Can be used to generate json response with the help of willdurand/Hateoas. See [HATEOAS response generator](#hateoas-response-generator)
+```SERVICE_REQUEST_SWAGGER_VALIDATOR``` | ```\Phrest\API\RequestSwaggerValidator``` | Can be used to validate request data against swagger schema. See [Request swagger validator](#request-swagger-validator)   
 
 ### Actions
 Phrest provides several actions for you. You can use them by simple bound them to paths.
@@ -155,8 +155,8 @@ return [
 
 \Phrest\Application constant | Description
 ---|---
-ACTION_SWAGGER | Provides the swagger file in json format.
-ACTION_ERROR_CODES | Provides all possible error codes in json format. See [Error Codes](#error-codes).
+```ACTION_SWAGGER``` | Provides the swagger file in json format.
+```ACTION_ERROR_CODES``` | Provides all possible error codes in json format. See [Error Codes](#error-codes).
 
 ## Routing
 A route is connection between a path and an action. Use the ```\Phrest\Application::CONFIG_ROUTES``` configuration to add routes.
@@ -188,8 +188,7 @@ If phrest receives an request with a method not provided by your action, phrest 
 
 Method | Parameter | Return type | Description
 ---|---|---|---
-```get``` ```put``` ```post``` ```patch``` | ```\Psr\Http\Message\ServerRequestInterface``` | ```\Psr\Http\Message\ResponseInterface``` | -
-```delete``` | ```\Psr\Http\Message\ServerRequestInterface``` | ```\Psr\Http\Message\ResponseInterface``` or ```null``` | If your ```delete``` method returns ```null```, phrest will generate an empty response with http status code 204.
+```get```, ```put```, ```post```, ```patch```, ```delete``` | ```\Psr\Http\Message\ServerRequestInterface``` | ```\Psr\Http\Message\ResponseInterface``` or null | If your method method returns ```null```, phrest will generate an empty response with http status code 204.
 ```options``` | - | - | You can't overwrite the ```options``` method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
 ```php
@@ -216,8 +215,7 @@ If phrest receives an request with a method not provided by your action, phrest 
 
 Method | Parameter | Return type | Description
 ---|---|---|---
-```get``` ```put``` ```post``` ```patch``` | ```\Phrest\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` | -
-```delete``` | ```\Phrest\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` or ```null``` | If your delete method returns ```null```, phrest will generate an empty response with http status code 204.
+```get```, ```put```, ```post```, ```patch```, ```delete``` | ```\Psr\API\RequestSwaggerData``` | ```\Psr\Http\Message\ResponseInterface``` or null | If your method method returns ```null```, phrest will generate an empty response with http status code 204.
 ```options``` | - | - | You can't overwrite the ```options``` method. Phrest will automatically generate a response with all allowed (=implemented) methods. 
 
 Use the ```\Phrest\API\RequestSwaggerData``` object to access your request parameters.
@@ -320,7 +318,7 @@ If validation succeed, the validate method will return an ```\Phrest\API\Request
 
 The ```\Phrest\API\RequestSwaggerData``` object contains all parameters validated, filled with default values as needed and correct data types.
 
-Method | Description | Request example | Value
+\Phrest\API\RequestSwaggerData method | Description | Request example | Value
 ---|---|---|---
 ```getBodyValue()``` | Returns the parsed json object. | {"name": "Batman"} | {stdClass json object}
 ```getQueryValues()``` | Returns all query params as key value pairs. | your-url?var1=value1 | ['var1' => 'value1']

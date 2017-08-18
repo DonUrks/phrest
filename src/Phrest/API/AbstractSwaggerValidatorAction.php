@@ -26,26 +26,26 @@ abstract class AbstractSwaggerValidatorAction implements
 
         $response = call_user_func_array([$this, $method], [$data]);
 
-        // if there is no response -> its a delete request without returning a response (=204 No Content)
+        // if there is no response -> create a response (=204 No Content)
         return $response ?? new \Zend\Diactoros\Response\EmptyResponse();
     }
 
-    public function get(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
+    public function get(RequestSwaggerData $data): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('GET');
     }
 
-    public function post(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
+    public function post(RequestSwaggerData $data): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('POST');
     }
 
-    public function put(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
+    public function put(RequestSwaggerData $data): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('PUT');
     }
 
-    public function patch(RequestSwaggerData $data): \Psr\Http\Message\ResponseInterface
+    public function patch(RequestSwaggerData $data): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('PATCH');
     }

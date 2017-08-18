@@ -12,31 +12,31 @@ abstract class AbstractAction implements
     {
         $response = call_user_func_array([$this, $method], [$request]);
 
-        // if there is no response -> its a delete request without returning a response (=204 No Content)
+        // if there is no response -> create a response (=204 No Content)
         return $response ?? new \Zend\Diactoros\Response\EmptyResponse();
     }
 
-    public function get(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function get(\Psr\Http\Message\ServerRequestInterface $request): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('GET');
     }
 
-    public function post(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function post(\Psr\Http\Message\ServerRequestInterface $request): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('POST');
     }
 
-    public function put(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function put(\Psr\Http\Message\ServerRequestInterface $request): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('PUT');
     }
 
-    public function patch(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function patch(\Psr\Http\Message\ServerRequestInterface $request): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('PATCH');
     }
 
-    public function delete(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+    public function delete(\Psr\Http\Message\ServerRequestInterface $request): ?\Psr\Http\Message\ResponseInterface
     {
         $this->throwMethodNotAllowed('DELETE');
     }
