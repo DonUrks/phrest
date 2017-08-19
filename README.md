@@ -1,6 +1,6 @@
 # phrest
 
-A php framework for your RESTful API with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will also use your scanned swagger annotations for request data validation.
+A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation ([Phrest\API\AbstractSwaggerValidatorAction](#phrest\api\abstractswaggervalidatoraction)).
 
 ## Features
 - Swagger 2.0 definitions in annotations ([zircote/swagger-php](https://github.com/zircote/swagger-php))
@@ -214,16 +214,16 @@ class Test extends \Phrest\API\AbstractAction
 Use this abstract action if you want phrest to validate your request based on swagger annotations. 
 
 Phrest will use the current route name to validate all request parameters defined in your swagger annotations.
-By default, phrest will use as operationId the following pattern: "method.route-name" ("get.name-of-your-route").
+By default, phrest will use a operationId with the pattern: "method.route-name" ("get.name-of-your-route").
 
 You can overwrite the operationIds for each method (see [Routing](#routing)).
  
-The operationId must match with the swagger operationId.
+The operationId defined in the route have to match with the operationId in the swagger annotations.
 
 If validation failed, phrest will handle the error response automatically.
 
 Extend the ```\Phrest\API\AbstractSwaggerValidatorAction``` class and overwrite the methods as needed.
-If phrest receives an request with a method not provided by your action, phrest will handle the error response automatically.
+If phrest receives a request with a method not provided by your actions, phrest throws a ```\Phrest\Http\Exception``` resulting in a http status 405 with error JSON response.
 
 Method | Parameter | Return type | Description
 ---|---|---|---
@@ -276,7 +276,7 @@ class SomeAction extends \Phrest\API\AbstractSwaggerValidatorAction
 ```
 
 ## Request swagger validator
-You can use the request swagger validator to validate your requuest parameters against your swagger operations. 
+You can use the request swagger validator to validate your request parameters against your swagger operations. 
 Just provide your request object and swagger operationId. 
 Phrest will use all parameter definitions provided in the operation linked by the operation Id. 
 
@@ -326,7 +326,7 @@ If the validation failed, phrest will throw an ```\Phrest\Http\Exception``` resu
 
 If validation succeed, the validate method will return an ```\Phrest\API\RequestSwaggerData``` object.
 
-The ```\Phrest\API\RequestSwaggerData``` object contains all parameters validated, filled with default values as needed and correct data types.
+The ```\Phrest\API\RequestSwaggerData``` object contains all parameters validated, filled with default values (if defined) and correct data types (as definded in swagger annotations).
 
 \Phrest\API\RequestSwaggerData method | Description | Request example | Value
 ---|---|---|---
