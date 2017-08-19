@@ -1,6 +1,6 @@
 # phrest
 
-A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation (see [Abstract Actions](#abstract-actions)).
+A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation (see [Phrest AbstractSwaggerValidatorAction](#phrest-abstractswaggervalidatoraction)).
 
 ## Features
 - Swagger 2.0 definitions in annotations ([zircote/swagger-php](https://github.com/zircote/swagger-php))
@@ -188,7 +188,7 @@ return [
 ## Abstract actions
 You can write your own actions by implementing the ```\Interop\Http\ServerMiddleware\MiddlewareInterface```. Or you can use the abstract actions provided by phrest.
 
-### Phrest\API\AbstractAction
+### Phrest AbstractAction
 Use this abstract action if you just want to map the HTTP methods to action methods. 
 
 Extend the ```\Phrest\API\AbstractAction``` class and overwrite the methods as needed.
@@ -210,7 +210,7 @@ class Test extends \Phrest\API\AbstractAction
 }
 ```
 
-### Phrest\API\AbstractSwaggerValidatorAction
+### Phrest AbstractSwaggerValidatorAction
 Use this abstract action if you want phrest to validate your request based on swagger annotations. 
 
 Phrest will use the current route name to validate all request parameters defined in your swagger annotations.
