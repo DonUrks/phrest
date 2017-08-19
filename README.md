@@ -1,6 +1,6 @@
 # phrest
 
-A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation (see [Phrest AbstractSwaggerValidatorAction](#phrest-abstractswaggervalidatoraction)).
+A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation (see [AbstractSwaggerValidatorAction](#abstractswaggervalidatoraction)).
 
 ## Features
 - Swagger 2.0 definitions in annotations ([zircote/swagger-php](https://github.com/zircote/swagger-php))
@@ -164,9 +164,9 @@ There is also a static method ```\Phrest\Application::createRoute()``` which cre
 
 The array keys are used to name the route. The route names are used in the [HATEOAS response generator](#hateoas-response-generator) for link generation.
 
-You can also provide a mapping for operation ids (see [AbstractSwaggerValidatorAction](###phrest\api\abstractswaggervalidatoraction)). 
+You can also provide a mapping for operation ids (see [AbstractSwaggerValidatorAction](#abstractswaggervalidatoraction)). 
 
-```php
+```php#abstractswaggervalidatoraction
 <?php
 // your config file
 return [
@@ -188,7 +188,7 @@ return [
 ## Abstract actions
 You can write your own actions by implementing the ```\Interop\Http\ServerMiddleware\MiddlewareInterface```. Or you can use the abstract actions provided by phrest.
 
-### Phrest AbstractAction
+### AbstractAction
 Use this abstract action if you just want to map the HTTP methods to action methods. 
 
 Extend the ```\Phrest\API\AbstractAction``` class and overwrite the methods as needed.
@@ -210,7 +210,7 @@ class Test extends \Phrest\API\AbstractAction
 }
 ```
 
-### Phrest AbstractSwaggerValidatorAction
+### AbstractSwaggerValidatorAction
 Use this abstract action if you want phrest to validate your request based on swagger annotations. 
 
 Phrest will use the current route name to validate all request parameters defined in your swagger annotations.
@@ -317,7 +317,7 @@ class SomeAction extends \Phrest\API\AbstractAction
 }
 ```
 
-Or just use the [Phrest\API\AbstractSwaggerValidatorAction](#phrest\api\abstractswaggervalidatoraction) and phrest will take care of fetching the right operationId.
+Or just use the [AbstractSwaggerValidatorAction](#abstractswaggervalidatoraction) and phrest will take care of fetching the right operationId.
 
 The validate method takes two parameters: the request object and the operationId.
 
