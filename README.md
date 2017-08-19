@@ -1,6 +1,6 @@
 # phrest
 
-A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation ([Phrest\API\AbstractSwaggerValidatorAction](#phrest\api\abstractswaggervalidatoraction)).
+A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation (see [Abstract Actions](#abstract-actions)).
 
 ## Features
 - Swagger 2.0 definitions in annotations ([zircote/swagger-php](https://github.com/zircote/swagger-php))
