@@ -223,7 +223,7 @@ The operationId defined in the route have to match with the operationId in the s
 If validation failed, phrest will handle the error response automatically.
 
 Extend the ```\Phrest\API\AbstractSwaggerValidatorAction``` class and overwrite the methods as needed.
-If phrest receives a request with a method not provided by your actions, phrest throws a ```\Phrest\Http\Exception``` resulting in a http status 405 with error JSON response.
+If phrest receives a request with a method not provided by your actions, a ```\Phrest\Http\Exception``` will be thrown resulting in a http status 405 with error model body response (see [Exceptions](##exceptions)).
 
 Method | Parameter | Return type | Description
 ---|---|---|---
