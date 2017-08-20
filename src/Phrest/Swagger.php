@@ -73,7 +73,7 @@ class Swagger
 
             // @todo fix bug
             // path could be "parameters" array when @SWG\Parameter is defined in @SWG\Path
-            // @SWG\Path doesn't provide operationId
+            // @SWG\Path doesn't provide property operationId
             if (property_exists($pathItem, 'parameters')) {
                 // parameters can be defined for all operations - parameter in operations will override them
                 $pathParameters = (array)($pathItem['parameters'] ?? []);
