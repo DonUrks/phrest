@@ -63,10 +63,17 @@ class Swagger
 
         $rawParametersByOperationId = [];
         foreach ($paths as $path => $pathItem) {
-            // @todo Paths can be a ref: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#pathsObject
-
+            // Paths can be a ref: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#pathsObject?
+            // No, path has always to start with slash - a ref property for @SWG\Path doesnt exist.
+            // A ref: "paths": {"#/definitions/Path": {... is possible and valid JSON (also valid swagger-php) but it
+            // makes no sense and wouldn't be validated by swagger-editor (see swagger-example.json)
             $pathParameters = [];
+
             // @todo path parameters can be a ref
+
+            // @todo fix bug
+            // path could be "parameters" array when @SWG\Parameter is defined in @SWG\Path
+            // @SWG\Path doesn't provide operationId
             if (property_exists($pathItem, 'parameters')) {
                 // parameters can be defined for all operations - parameter in operations will override them
                 $pathParameters = (array)($pathItem['parameters'] ?? []);
@@ -93,6 +100,7 @@ class Swagger
                 if (property_exists($operation, 'parameters')) {
                     $parameters = (array)$operation->parameters;
                 }
+
                 $rawParametersByOperationId[$operationId] = array_merge($pathParameters, $parameters);
             }
         }
