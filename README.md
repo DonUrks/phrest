@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/DonUrks/phrest.svg?branch=master)](https://travis-ci.org/DonUrks/phrest)
+[![Latest Stable Version](https://poser.pugx.org/donurks/phrest/v/stable)](https://packagist.org/packages/donurks/phrest)
+[![Total Downloads](https://poser.pugx.org/donurks/phrest/downloads)](https://packagist.org/packages/donurks/phrest)
+[![License](https://poser.pugx.org/donurks/phrest/license)](https://packagist.org/packages/donurks/phrest)
 
 # phrest
 
