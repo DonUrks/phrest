@@ -3,26 +3,36 @@
   "description": "A REST API lib with swagger and hateoas support.",
   "type": "library",
   "license": "MIT",
-  "keywords": ["json", "rest", "api", "hateoas", "swagger"],
+  "keywords": [
+    "json",
+    "rest",
+    "api",
+    "hateoas",
+    "swagger"
+  ],
   "homepage": "https://github.com/donurks/phrest/",
   "authors": [
-        {
-            "name": "Eric Müller",
-            "homepage": "https://github.com/donurks"
-        },
-        {
-            "name": "Max Epperlein",
-            "homepage": "https://github.com/manieperplex"
-        }
+    {
+      "name": "Eric Müller",
+      "homepage": "https://github.com/donurks"
+    },
+    {
+      "name": "Max Epperlein",
+      "homepage": "https://github.com/manieperplex"
+    }
   ],
   "autoload": {
     "psr-4": {
       "Phrest\\": "src/Phrest/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Phrest\\": "tests/Phrest/"
+    }
+  },
   "require": {
     "php": "^7.1",
-
     "monolog/monolog": "1.23.0",
     "zendframework/zend-expressive": "2.0.3",
     "zendframework/zend-config-aggregator": "1.0.0",
@@ -33,5 +43,8 @@
     "zendframework/zend-cache": "2.7.2",
     "willdurand/hateoas": "2.11.0",
     "justinrainbow/json-schema": "5.2.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "6.3.0"
   }
 }

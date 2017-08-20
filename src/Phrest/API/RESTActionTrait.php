@@ -48,7 +48,7 @@ trait RESTActionTrait
 
     protected function onRESTRequest(\Psr\Http\Message\ServerRequestInterface $request, string $method): \Psr\Http\Message\ResponseInterface
     {
-        $this->throwMethodNotAllowed($method);
+        return new \Zend\Diactoros\Response\EmptyResponse();
     }
 
     private function getAllowedMethods(): array
