@@ -59,24 +59,31 @@ class Swagger
 
     private function extractParameters(): array
     {
+        // Swagger Paths[]
         $paths = (array)$this->schemaStorage->resolveRef(self::SCHEMA_ID . '#/paths');
 
         $rawParametersByOperationId = [];
         foreach ($paths as $path => $pathItem) {
-            // Paths can be a ref: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#pathsObject?
-            // No, path has always to start with slash - a ref property for @SWG\Path doesnt exist.
-            // A ref: "paths": {"#/definitions/Path": {... is possible and valid JSON (also valid swagger-php) but it
-            // makes no sense and wouldn't be validated by swagger-editor (see swagger-example.json)
-            $pathParameters = [];
+            // $path => '/some-path'
+            // $pathItem => Swagger Path Item Object
 
-            // @todo path parameters can be a ref
+            // Resolve Swagger Path Item Object $ref
+            // "If there are conflicts between the referenced definition and this Path Item's definition, the behavior is undefined."
+            // So we just allow either direct definition or using of $ref. But never both. $ref will overwrite all direct definitions.
+            if (property_exists($pathItem, '$ref')) {
+                $pathItemArray = (array)$pathItem;
+                $pathItem = $this->schemaStorage->resolveRef($pathItemArray['$ref']);
+            }
 
-            // @todo fix bug
-            // path could be "parameters" array when @SWG\Parameter is defined in @SWG\Path
-            // @SWG\Path doesn't provide property operationId
+            // Handle @SWG\Parameter on @SWG\Path
+            $pathItemParameters = [];
             if (property_exists($pathItem, 'parameters')) {
-                // parameters can be defined for all operations - parameter in operations will override them
-                $pathParameters = (array)($pathItem['parameters'] ?? []);
+                $pathItemParameters = (array)($pathItem->parameters ?? []);
+
+                // Resolve Swagger Path Item Parameters $ref
+                if (array_key_exists('$ref', $pathItemParameters)) {
+                    $pathItemParameters = (array)$this->schemaStorage->resolveRef($pathItemParameters['$ref']);
+                }
             }
 
             $operations = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch'];
@@ -101,7 +108,8 @@ class Swagger
                     $parameters = (array)$operation->parameters;
                 }
 
-                $rawParametersByOperationId[$operationId] = array_merge($pathParameters, $parameters);
+                // parameters can be defined for all operations - parameter in operations will override them
+                $rawParametersByOperationId[$operationId] = array_merge($pathItemParameters, $parameters);
             }
         }
 
@@ -153,8 +161,8 @@ class Swagger
 
     public function getParameters(string $operationId): Swagger\Parameters
     {
-        if(!array_key_exists($operationId, $this->parametersByOperationId)) {
-            throw new \Phrest\Exception('OperationId "'.$operationId.'" not found in swagger.');
+        if (!array_key_exists($operationId, $this->parametersByOperationId)) {
+            throw new \Phrest\Exception('OperationId "' . $operationId . '" not found in swagger.');
         }
         return $this->parametersByOperationId[$operationId];
     }
