@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/DonUrks/phrest.svg?branch=master)](https://travis-ci.org/DonUrks/phrest)
+
 # phrest
 
 A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest will automatically scan your code for swagger or HATEOAS annotations. If desired phrest will use the scanned swagger annotations for request data validation (see [AbstractSwaggerValidatorAction](#abstractswaggervalidatoraction)).
