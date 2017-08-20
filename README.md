@@ -585,13 +585,13 @@ return [
 Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) and you should see the phrest error codes and your own error codes.
 
 ## Todos
-- ReadMe
+- ReadMe (some links doesnt work)
 - UnitTests
 - add OpenAPI Spec 3.0 support (as soon as zircote/swagger-php 3.0 is released)
-- HAL Links (now part of OpenAPI Spec 3.0)
+- HAL Links (part of OpenAPI Spec 3.0)
     - [OpenAPI Spec 3.0 - Link Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#linkObject)
 - solve todos in code
 - check cache speed and need (filesystem access cost vs cachable process cost)
     - granular user config for caching? (cache swagger: yes, cache error codes: no, ...)
-    - user cache adapter for Phrest cache?
+- injectable PSR-16 (\Psr\SimpleCache\CacheInterface) cache-adapter when zend-cache 2.8.0 released [2.8.0](https://github.com/zendframework/zend-cache/milestone/12)
     
