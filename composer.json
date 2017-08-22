@@ -48,6 +48,7 @@
     "phpunit/phpunit": "6.3.0"
   },
   "scripts": {
-    "test": "vendor/bin/phpunit"
+    "test": "vendor/bin/phpunit",
+    "test-with-coverage": "vendor/bin/phpunit --coverage-text --verbose --coverage-clover=coverage.clover"
   }
 }

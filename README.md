@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/DonUrks/phrest.svg?branch=master)](https://travis-ci.org/DonUrks/phrest)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/DonUrks/phrest/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/DonUrks/phrest/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/DonUrks/phrest/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/DonUrks/phrest/?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/donurks/phrest/v/stable)](https://packagist.org/packages/donurks/phrest)
 [![Total Downloads](https://poser.pugx.org/donurks/phrest/downloads)](https://packagist.org/packages/donurks/phrest)
 [![License](https://poser.pugx.org/donurks/phrest/license)](https://packagist.org/packages/donurks/phrest)
