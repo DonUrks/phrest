@@ -242,20 +242,24 @@ class Application
         $container = $app->getContainer();
         $logger = $container->get(\Phrest\Application::SERVICE_LOGGER);
 
-        $app->pipe(new \Phrest\Middleware\Error($logger));
-        $app->pipe(new \Phrest\Middleware\HttpException($logger));
-        $app->pipe(new \Zend\Expressive\Helper\ServerUrlMiddleware($container->get(\Zend\Expressive\Helper\ServerUrlHelper::class)));
-        $app->pipe(new \Phrest\Middleware\JsonRequestBody());
-
-        $app->pipe($preRoutingMiddleware);
-        $app->pipeRoutingMiddleware();
-
-        $app->pipe(new \Zend\Expressive\Helper\UrlHelperMiddleware($container->get(\Zend\Expressive\Helper\UrlHelper::class)));
-
-        $app->pipe($preDispatchingMiddleware);
-        $app->pipeDispatchMiddleware();
-
-        $app->pipe(new \Phrest\Middleware\NotFound());
+        $app->pipe(array_merge(
+            [
+                new \Phrest\Middleware\Error($logger),
+                new \Phrest\Middleware\HttpException($logger),
+                new \Zend\Expressive\Helper\ServerUrlMiddleware($container->get(\Zend\Expressive\Helper\ServerUrlHelper::class)),
+                new \Phrest\Middleware\JsonRequestBody()
+            ],
+            $preRoutingMiddleware,
+            [
+                \Zend\Expressive\Application::ROUTING_MIDDLEWARE,
+                new \Zend\Expressive\Helper\UrlHelperMiddleware($container->get(\Zend\Expressive\Helper\UrlHelper::class))
+            ],
+            $preDispatchingMiddleware,
+            [
+                \Zend\Expressive\Application::DISPATCH_MIDDLEWARE,
+                new \Phrest\Middleware\NotFound()
+            ]
+        ));
     }
 
     static public function createRoute(string $path, string $action, array $operationIds = []): array
