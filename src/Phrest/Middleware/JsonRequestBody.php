@@ -8,14 +8,14 @@ class JsonRequestBody implements \Interop\Http\ServerMiddleware\MiddlewareInterf
     const JSON_OBJECT_ATTRIBUTE = self::class . '::JSON_OBJECT_ATTRIBUTE';
 
     static private $jsonDecodeErrorMapping = [
-        JSON_ERROR_DEPTH => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_DEPTH,
-        JSON_ERROR_STATE_MISMATCH => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_STATE_MISMATCH,
-        JSON_ERROR_CTRL_CHAR => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_CTRL_CHAR,
-        JSON_ERROR_SYNTAX => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_SYNTAX,
-        JSON_ERROR_UTF8 => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_UTF8,
-        JSON_ERROR_RECURSION => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_RECURSION,
-        JSON_ERROR_INF_OR_NAN => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_INF_OR_NAN,
-        JSON_ERROR_UNSUPPORTED_TYPE => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_UNSUPPORTED_TYPE,
+        \JSON_ERROR_DEPTH => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_DEPTH,
+        \JSON_ERROR_STATE_MISMATCH => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_STATE_MISMATCH,
+        \JSON_ERROR_CTRL_CHAR => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_CTRL_CHAR,
+        \JSON_ERROR_SYNTAX => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_SYNTAX,
+        \JSON_ERROR_UTF8 => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_UTF8,
+        \JSON_ERROR_RECURSION => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_RECURSION,
+        \JSON_ERROR_INF_OR_NAN => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_INF_OR_NAN,
+        \JSON_ERROR_UNSUPPORTED_TYPE => \Phrest\API\ErrorCodes::JSON_DECODE_ERROR_UNSUPPORTED_TYPE,
     ];
 
     public function process(\Psr\Http\Message\ServerRequestInterface $request, \Interop\Http\ServerMiddleware\DelegateInterface $delegate)
