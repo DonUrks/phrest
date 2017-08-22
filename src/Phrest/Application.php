@@ -146,7 +146,7 @@ class Application
                             return new \Phrest\API\RequestSwaggerValidator($swagger, $jsonValidator);
                         },
 
-                        \Phrest\Application::SERVICE_ROUTER => function (\Interop\Container\ContainerInterface $container) {
+                        \Phrest\Application::SERVICE_ROUTER => function () {
                             return new \Zend\Expressive\Router\FastRouteRouter();
                         },
 
