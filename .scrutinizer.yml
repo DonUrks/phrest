@@ -13,9 +13,6 @@ checks:
     remove_php_closing_tag: true
     remove_trailing_whitespace: true
 tools:
-  external_code_coverage:
-    timeout: 600
-    runs: 3
   php_code_coverage: true
   php_code_sniffer:
     config:
