@@ -14,8 +14,9 @@ A PHP framework for building RESTful APIs with JSON and Swagger support. Phrest 
 - HATEOAS response definitions in annotations ([willdurand/Hateoas](https://github.com/willdurand/Hateoas))
 - Request data validation against swagger data ([justinrainbow/json-schema](https://github.com/justinrainbow/json-schema))
 - PSR-3 Logging ([Seldaek/monolog](https://github.com/Seldaek/monolog))
-- Expandable with PSR-15 middleware
-- PSR-7 Messages
+- PSR-7 HTTP Message
+- PSR-11 Container
+- PSR-15 Middleware (extendable)
 - Error codes for API consumers
 - Unified exception handling for HTTP status codes
 
