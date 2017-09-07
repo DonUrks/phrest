@@ -593,6 +593,7 @@ return [
 Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) and you should see the phrest error codes and your own error codes.
 
 ## Todos
+- validate header against swagger consumes value(s)
 - ReadMe (some links doesnt work)
 - UnitTests
 - add OpenAPI Spec 3.0 support (as soon as zircote/swagger-php 3.0 is released)
