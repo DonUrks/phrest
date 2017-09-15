@@ -593,6 +593,8 @@ return [
 Now call [http://localhost/your/path/to/error_codes](http://localhost/your/path/to/error_codes) and you should see the phrest error codes and your own error codes.
 
 ## Todos
+- CallableUrlGenerator
+    - url generation with missing params lead to invalid url (hateoas link params)
 - validate header against swagger consumes value(s)
 - ReadMe (some links doesnt work)
 - UnitTests
