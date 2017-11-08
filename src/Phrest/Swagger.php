@@ -152,7 +152,7 @@ class Swagger
                     break;
                 case 'formData':
                     // @todo implement formData validation
-                    throw new \Phrest\Exception('swagger parameter location "formData" not yet implemented');
+                    // throw new \Phrest\Exception('swagger parameter location "formData" not yet implemented');
                     break;
             }
         }
